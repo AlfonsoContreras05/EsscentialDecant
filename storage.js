@@ -1,4 +1,4 @@
-const SELLER_PHONE = "56946317762";
+const SELLER_PHONE = "56944264171";
 const ADMIN_PASSWORD = "essential2026";
 
 const STORAGE_PRODUCTS_KEY = "essentialDecantProductsV43";
