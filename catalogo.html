@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Catálogo | Essential Decant</title>
+  <meta name="description" content="Catálogo de decants Essential Decant. Selecciona 3ml, 5ml o 10ml y envía tu pedido por WhatsApp." />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <header class="page-hero compact">
+    <nav class="nav">
+      <a class="brand" href="index.html" aria-label="Volver al inicio">
+        <div class="logo logo-image"><img src="assets/essential-decant-logo-nav.png" alt="Essential Decant"></div>
+        <div>
+          <strong>Essential Decant</strong>
+          <span>Catálogo</span>
+        </div>
+      </a>
+
+      <div class="nav-links">
+        <a href="index.html">Inicio</a>
+        <a href="#catalogo">Fragancias</a>
+        <a href="#como-comprar">Cómo comprar</a>
+      </div>
+
+      <button class="cart-button" id="openCart" type="button" aria-label="Abrir carrito">
+        <span>Carrito</span>
+        <strong id="cartCount">0</strong>
+      </button>
+    </nav>
+
+    <section class="page-title">
+      <span class="eyebrow">Catálogo interactivo</span>
+      <h1>Elige tus decants y consulta directo por WhatsApp.</h1>
+      <p>
+        Selecciona formato, agrega al carrito y envía el detalle al vendedor.
+        El pago y la entrega se coordinan manualmente.
+      </p>
+    </section>
+  </header>
+
+  <main>
+    <section class="catalog-section" id="catalogo">
+      <div class="section-head">
+        <div>
+          <span class="eyebrow">Fragancias disponibles</span>
+          <h2>Catálogo</h2>
+        </div>
+        <p>
+          Usa el buscador y filtros para encontrar perfumes por marca, nombre, categoría o perfil olfativo.
+        </p>
+      </div>
+
+      <div class="catalog-tools">
+        <label class="search-box">
+          <span>Buscar perfume</span>
+          <input id="searchInput" type="search" placeholder="Ej: Hawas, Versace, dulce, fresco..." />
+        </label>
+
+        <label class="sort-box">
+          <span>Ordenar</span>
+          <select id="sortSelect">
+            <option value="featured">Destacados primero</option>
+            <option value="name">Nombre A-Z</option>
+            <option value="price-low">Precio 3ml menor</option>
+            <option value="price-high">Precio 3ml mayor</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="filters" id="filterList" aria-label="Filtros del catálogo"></div>
+
+      <div class="product-grid" id="productGrid"></div>
+    </section>
+
+    <section class="cta" id="como-comprar">
+      <h2>Compra conversada, sin pago automático.</h2>
+      <p>El carrito solo prepara el pedido. El vendedor confirma stock, pago y entrega por WhatsApp.</p>
+      <button class="btn primary" id="openCartBottom" type="button">Ver carrito</button>
+    </section>
+  </main>
+
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="cart-panel">
+      <div class="cart-head">
+        <div>
+          <span class="eyebrow">Tu pedido</span>
+          <h2>Carrito</h2>
+        </div>
+        <button class="close-cart" id="closeCart" type="button" aria-label="Cerrar carrito">×</button>
+      </div>
+
+      <div class="cart-items" id="cartItems"></div>
+
+      <form class="checkout" id="checkoutForm">
+        <label>
+          Nombre
+          <input name="customerName" placeholder="Tu nombre" />
+        </label>
+        <label>
+          Comuna / sector
+          <input name="customerZone" placeholder="Ej: San Miguel" />
+        </label>
+        <label>
+          Comentario
+          <textarea name="customerNote" rows="3" placeholder="Ej: quiero disponibilidad y forma de entrega"></textarea>
+        </label>
+      </form>
+
+      <div class="cart-total">
+        <span>Total estimado</span>
+        <strong id="cartTotal">$0</strong>
+      </div>
+
+      <a class="btn whatsapp disabled" id="sendWhatsapp" href="#" target="_blank" rel="noopener">
+        Enviar pedido por WhatsApp
+      </a>
+      <button class="clear-cart" id="clearCart" type="button">Vaciar carrito</button>
+    </div>
+  </aside>
+
+  <template id="productTemplate">
+    <article class="product-card">
+      <div class="product-visual">
+        <div class="shine"></div>
+        <img class="product-image" alt="" />
+        <div class="perfume-bottle product-bottle">
+          <div class="cap"></div>
+          <div class="label"></div>
+        </div>
+      </div>
+
+      <div class="product-info">
+        <div class="product-top">
+          <span class="product-tag"></span>
+          <span class="stock"></span>
+        </div>
+        <h3></h3>
+        <p></p>
+
+        <div class="size-picker">
+          <button type="button" data-size="3">3ml</button>
+          <button type="button" data-size="5" class="selected">5ml</button>
+          <button type="button" data-size="10">10ml</button>
+        </div>
+
+        <div class="product-bottom">
+          <strong class="price"></strong>
+          <button class="add-cart" type="button">Agregar</button>
+        </div>
+      </div>
+    </article>
+  </template>
+
+  <footer>
+    <strong>Essential Decant</strong>
+    <span>Catálogo con carrito y WhatsApp</span>
+  </footer>
+
+  <script src="storage.js"></script>
+  <script src="catalogo.js"></script>
+</body>
+</html>

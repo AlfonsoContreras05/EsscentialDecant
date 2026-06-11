@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin oculto | Essential Decant</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <section class="login-screen" id="loginScreen">
+    <form class="login-card" id="loginForm">
+      <div class="logo big logo-image"><img src="assets/essential-decant-logo-badge.png" alt="Essential Decant"></div>
+      <span class="eyebrow">Administrador oculto</span>
+      <h1>Ingresar al catálogo.</h1>
+      <p>Esta protección es simple y local. Sirve para cliente local sin transacciones delicadas.</p>
+
+      <label>
+        Clave de administrador
+        <input id="adminPassword" type="password" placeholder="Ingresa la clave" autocomplete="current-password" />
+      </label>
+
+      <button class="btn primary" type="submit">Entrar</button>
+      <a class="btn ghost" href="index.html">Volver al sitio</a>
+
+      <small>Clave demo inicial: <strong>essential2026</strong></small>
+    </form>
+  </section>
+
+  <div class="admin-app hidden" id="adminApp">
+    <header class="page-hero compact">
+      <nav class="nav">
+        <a class="brand" href="index.html" aria-label="Volver al inicio">
+          <div class="logo logo-image"><img src="assets/essential-decant-logo-nav.png" alt="Essential Decant"></div>
+          <div>
+            <strong>Essential Decant</strong>
+            <span>Administrador</span>
+          </div>
+        </a>
+
+        <div class="nav-links">
+          <a href="index.html">Inicio</a>
+          <a href="catalogo.html">Ver catálogo</a>
+        </div>
+
+        <button class="nav-cta danger" id="logoutButton" type="button">Salir</button>
+      </nav>
+
+      <section class="page-title">
+        <span class="eyebrow">App oficial liviana</span>
+        <h1>Administrador de productos.</h1>
+        <p>
+          Agrega, edita, elimina, ordena, importa y exporta el catálogo. Todo se guarda en este navegador.
+        </p>
+      </section>
+    </header>
+
+    <main>
+      <section class="admin-tools-panel">
+        <div>
+          <span class="eyebrow">Respaldo</span>
+          <h2>Importar / exportar catálogo</h2>
+          <p>
+            Como esta versión usa localStorage, el respaldo JSON es obligatorio para no perder el catálogo.
+          </p>
+        </div>
+
+        <div class="backup-actions">
+          <button class="btn primary" id="exportCatalog" type="button">Exportar JSON</button>
+          <label class="btn ghost file-button">
+            Importar JSON
+            <input id="importCatalog" type="file" accept="application/json" />
+          </label>
+          <button class="btn ghost" id="resetDefaults" type="button">Restaurar demo</button>
+        </div>
+      </section>
+
+
+      <section class="taxonomy-panel">
+        <div class="taxonomy-head">
+          <div>
+            <span class="eyebrow">Clasificación dinámica</span>
+            <h2>Categorías y perfiles</h2>
+          </div>
+          <p>
+            Crea nuevas categorías y perfiles olfativos para que el catálogo pueda crecer sin tocar código.
+          </p>
+        </div>
+
+        <div class="taxonomy-grid">
+          <article class="taxonomy-card">
+            <h3>Categorías</h3>
+            <form class="taxonomy-form" id="categoryForm">
+              <input name="name" placeholder="Ej: Nicho, Mujer, Hombre, Unisex..." />
+              <button class="btn primary" type="submit">Agregar</button>
+            </form>
+            <div class="taxonomy-list" id="categoryList"></div>
+          </article>
+
+          <article class="taxonomy-card">
+            <h3>Perfiles olfativos</h3>
+            <form class="taxonomy-form" id="profileForm">
+              <input name="name" placeholder="Ej: Amaderado, Especiado, Acuático..." />
+              <button class="btn primary" type="submit">Agregar</button>
+            </form>
+            <div class="taxonomy-list" id="profileList"></div>
+          </article>
+        </div>
+      </section>
+
+      <section class="admin-panel visible-admin">
+        <div class="admin-copy">
+          <span class="eyebrow">Producto</span>
+          <h2 id="formTitle">Agregar producto</h2>
+          <p>
+            Las imágenes se comprimen antes de guardarse. Aun así, conviene usar fotos livianas para no saturar el navegador.
+          </p>
+
+          <div class="admin-note">
+            <strong>Ruta oculta:</strong>
+            esta página no aparece en la navegación pública. Se entra manualmente con <code>admin.html</code>.
+          </div>
+        </div>
+
+        <form class="admin-form" id="productForm">
+          <input type="hidden" name="id" />
+
+          <div class="form-row">
+            <label>
+              Producto
+              <input required name="name" placeholder="Ej: Hawas Ice" />
+            </label>
+            <label>
+              Marca
+              <input required name="brand" placeholder="Ej: Rasasi" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Categoría
+              <select name="category" id="categorySelect"></select>
+            </label>
+            <label>
+              Perfil
+              <select name="profile" id="profileSelect"></select>
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Etiqueta comercial
+              <input required name="tag" placeholder="Ej: Limpio · Cítrico" />
+            </label>
+            <label>
+              Stock
+              <select name="stock">
+                <option value="Disponible">Disponible</option>
+                <option value="Agotado">Agotado</option>
+              </select>
+            </label>
+          </div>
+
+          <div class="form-row three">
+            <label>
+              Precio 3ml
+              <input required name="price3" type="number" min="0" placeholder="3990" />
+            </label>
+            <label>
+              Precio 5ml
+              <input required name="price5" type="number" min="0" placeholder="5990" />
+            </label>
+            <label>
+              Precio 10ml
+              <input required name="price10" type="number" min="0" placeholder="9990" />
+            </label>
+          </div>
+
+          <label>
+            Descripción
+            <textarea required name="description" rows="3" placeholder="Describe el aroma en una línea comercial."></textarea>
+          </label>
+
+          <label class="checkbox-row">
+            <input name="featured" type="checkbox" />
+            Producto destacado
+          </label>
+
+          <label>
+            Imagen del producto
+            <input name="image" type="file" accept="image/*" />
+          </label>
+
+          <div class="image-preview-wrap">
+            <img id="imagePreview" alt="Vista previa de imagen" />
+            <button class="clear-image" id="removeImage" type="button">Quitar imagen</button>
+          </div>
+
+          <div class="admin-actions">
+            <button class="btn primary" type="submit">Guardar producto</button>
+            <button class="btn ghost" id="resetForm" type="button">Limpiar</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="admin-list-section">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Inventario</span>
+            <h2>Productos cargados</h2>
+          </div>
+          <p>Edita, elimina, ordena y destaca productos. Los cambios se reflejan en <strong>catalogo.html</strong>.</p>
+        </div>
+
+        <div class="admin-product-list" id="adminProductList"></div>
+      </section>
+    </main>
+
+    <footer>
+      <strong>Essential Decant</strong>
+      <span>Administrador liviano con respaldo JSON</span>
+    </footer>
+  </div>
+
+  <script src="storage.js"></script>
+  <script src="backup.js"></script>
+  <script src="admin.js"></script>
+</body>
+</html>
