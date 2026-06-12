@@ -1532,7 +1532,7 @@ body.cart-open .cart-panel {
 footer {
   padding: 34px clamp(18px, 5vw, 76px);
   display: flex;
-  justify-content: space-between;
+  justify-content: normal;
   gap: 18px;
   color: var(--muted);
   border-top: 1px solid rgba(255,255,255,.08);
