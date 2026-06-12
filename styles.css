@@ -136,12 +136,12 @@ footer,
   flex: 0 0 auto;
 }
 
-/* .logo.logo-image {
+.logo.logo-image {
   background: transparent;
   box-shadow:
     0 0 0 5px rgba(232,194,111,.12),
     0 0 34px rgba(232,194,111,.20);
-} */
+}
 
 .logo.logo-image img {
   width: 100%;
@@ -1529,3 +1529,415 @@ footer strong {
 #imagePreview1.visible, #imagePreview2.visible, #imagePreview3.visible, #heroImagePreview.visible { display: block; }
 .hero-admin-panel { margin-top: 30px; }
 @media (max-width: 900px) { .product-images-admin, .multi-preview-grid { grid-template-columns: 1fr; } }
+
+
+/* Essential Decant V5.2 — Footer redes + WhatsApp flotante + detalle de producto */
+.site-footer {
+  align-items: center;
+  flex-wrap: wrap;
+  padding-bottom: 44px;
+}
+.footer-brand {
+  display: grid;
+  gap: 8px;
+}
+.footer-brand strong {
+  font-size: 18px;
+}
+.footer-brand span {
+  color: var(--muted);
+}
+.footer-socials {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.footer-socials a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.055);
+  border-radius: 999px;
+  padding: 10px 14px;
+  color: var(--text);
+  font-weight: 850;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+.footer-socials a:hover {
+  transform: translateY(-2px);
+  background: rgba(255,255,255,.095);
+  border-color: rgba(232,194,111,.38);
+}
+.footer-socials span {
+  width: 28px;
+  height: 28px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  color: #111;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  font-size: 11px;
+  font-weight: 950;
+}
+.floating-whatsapp {
+  position: fixed;
+  right: 22px;
+  bottom: 22px;
+  z-index: 30;
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px 12px 12px;
+  border-radius: 999px;
+  border: 1px solid rgba(88,227,162,.34);
+  background:
+    radial-gradient(circle at 18% 20%, rgba(255,255,255,.18), transparent 4rem),
+    linear-gradient(135deg, rgba(18, 161, 89, .94), rgba(5, 96, 60, .94));
+  color: #fff;
+  box-shadow: 0 18px 45px rgba(0,0,0,.34), 0 0 0 7px rgba(88,227,162,.08);
+  backdrop-filter: blur(18px);
+  transition: transform .2s ease, box-shadow .2s ease;
+}
+.floating-whatsapp:hover {
+  transform: translateY(-3px) scale(1.02);
+  box-shadow: 0 22px 55px rgba(0,0,0,.42), 0 0 0 10px rgba(88,227,162,.10);
+}
+.wa-mark {
+  width: 42px;
+  height: 42px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(255,255,255,.16);
+  font-size: 22px;
+}
+.wa-copy {
+  display: grid;
+  gap: 1px;
+  line-height: 1.1;
+}
+.wa-copy strong {
+  font-size: 14px;
+}
+.wa-copy small {
+  color: rgba(255,255,255,.78);
+  font-weight: 800;
+}
+.product-card {
+  cursor: pointer;
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+.product-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(232,194,111,.32);
+  box-shadow: 0 28px 80px rgba(0,0,0,.26);
+}
+.product-detail-link {
+  display: inline-flex;
+  margin-top: 4px;
+  color: var(--gold);
+  font-weight: 950;
+  font-size: 14px;
+}
+.product-page-hero {
+  padding-bottom: 16px;
+}
+.product-detail-shell {
+  display: grid;
+  grid-template-columns: minmax(320px, .92fr) minmax(340px, 1.08fr);
+  gap: clamp(22px, 4vw, 54px);
+  align-items: start;
+  padding: 26px 0 82px;
+}
+.detail-gallery,
+.detail-info,
+.related-card {
+  border: 1px solid var(--line);
+  background: rgba(255,255,255,.06);
+  border-radius: var(--radius);
+  box-shadow: 0 22px 70px rgba(0,0,0,.18);
+}
+.detail-gallery {
+  position: sticky;
+  top: 22px;
+  overflow: hidden;
+  padding: 20px;
+}
+.detail-main-image {
+  min-height: 560px;
+  border-radius: 24px;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 42%, var(--accent, rgba(86,200,255,.32)), transparent 16rem),
+    linear-gradient(145deg, rgba(255,255,255,.13), rgba(255,255,255,.03));
+  overflow: hidden;
+}
+.detail-main-image img {
+  width: min(84%, 540px);
+  height: 520px;
+  object-fit: contain;
+  filter: drop-shadow(0 34px 44px rgba(0,0,0,.48));
+}
+.detail-fallback-bottle {
+  min-height: 520px;
+  display: grid;
+  place-items: center;
+}
+.detail-fallback-bottle .product-bottle {
+  width: 160px;
+  height: 240px;
+}
+.detail-fallback-bottle .product-bottle .label {
+  width: 96px;
+  height: 96px;
+  top: 78px;
+  font-size: 12px;
+}
+.detail-thumbs {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin-top: 14px;
+}
+.detail-thumbs button {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  background: rgba(255,255,255,.055);
+  padding: 8px;
+  min-height: 108px;
+  overflow: hidden;
+}
+.detail-thumbs button.active {
+  border-color: rgba(232,194,111,.72);
+  box-shadow: 0 0 0 4px rgba(232,194,111,.10);
+}
+.detail-thumbs img {
+  width: 100%;
+  height: 92px;
+  object-fit: contain;
+}
+.detail-info {
+  padding: clamp(24px, 4vw, 38px);
+  background:
+    radial-gradient(circle at top right, rgba(232,194,111,.10), transparent 18rem),
+    rgba(255,255,255,.055);
+}
+.breadcrumb {
+  display: flex;
+  gap: 9px;
+  flex-wrap: wrap;
+  align-items: center;
+  color: var(--muted);
+  font-size: 13px;
+  margin-bottom: 22px;
+}
+.breadcrumb a {
+  color: var(--gold);
+  font-weight: 850;
+}
+.detail-badges {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  margin-bottom: 18px;
+}
+.detail-badges span {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: rgba(255,255,255,.07);
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 900;
+}
+.detail-brand {
+  color: var(--gold);
+  text-transform: uppercase;
+  letter-spacing: .16em;
+  font-size: 12px;
+  font-weight: 950;
+  margin-bottom: 14px;
+}
+.detail-info h1 {
+  font-size: clamp(42px, 5.8vw, 84px);
+  max-width: 760px;
+}
+.detail-description {
+  margin-top: 22px;
+  color: var(--muted);
+  line-height: 1.85;
+  font-size: 17px;
+}
+.detail-meta {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+  margin: 26px 0;
+}
+.detail-meta div,
+.detail-price-row,
+.detail-subtotal {
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 16px;
+  background: rgba(0,0,0,.18);
+}
+.detail-meta span,
+.detail-price-row span,
+.detail-subtotal span,
+.control-label {
+  display: block;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 850;
+  margin-bottom: 8px;
+}
+.detail-meta strong {
+  color: var(--text);
+}
+.detail-meta .success {
+  color: var(--green);
+}
+.detail-meta .danger {
+  color: var(--red);
+}
+.detail-price-row,
+.detail-subtotal {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 18px;
+}
+.detail-price-row strong,
+.detail-subtotal strong {
+  font-size: 30px;
+  color: var(--gold-2);
+}
+.detail-controls {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 18px;
+  margin: 20px 0;
+}
+.detail-size-picker {
+  margin: 0;
+  min-width: min(380px, 100%);
+}
+.detail-qty {
+  height: 46px;
+}
+.detail-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 22px;
+}
+.btn.whatsapp {
+  background: linear-gradient(135deg, rgba(18,161,89,.95), rgba(5,96,60,.95));
+  color: #fff;
+  border-color: rgba(88,227,162,.34);
+}
+.detail-note {
+  margin-top: 18px;
+  font-size: 14px;
+  color: var(--muted);
+}
+.related-section {
+  padding-bottom: 70px;
+}
+.compact-head h2 {
+  font-size: clamp(32px, 4vw, 54px);
+}
+.related-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+.related-card {
+  overflow: hidden;
+  transition: transform .2s ease, border-color .2s ease;
+}
+.related-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(232,194,111,.34);
+}
+.related-visual {
+  min-height: 190px;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 45%, rgba(86,200,255,.22), transparent 10rem), rgba(255,255,255,.04);
+}
+.related-visual img {
+  width: 82%;
+  height: 170px;
+  object-fit: contain;
+  filter: drop-shadow(0 18px 28px rgba(0,0,0,.38));
+}
+.related-card > div:last-child {
+  padding: 18px;
+  display: grid;
+  gap: 7px;
+}
+.related-card span,
+.related-card small {
+  color: var(--muted);
+}
+.related-card strong {
+  color: var(--text);
+  line-height: 1.25;
+}
+@media (max-width: 1080px) {
+  .product-detail-shell {
+    grid-template-columns: 1fr;
+  }
+  .detail-gallery {
+    position: relative;
+    top: 0;
+  }
+  .related-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+@media (max-width: 720px) {
+  .floating-whatsapp {
+    right: 14px;
+    bottom: 14px;
+    padding: 10px;
+  }
+  .wa-copy {
+    display: none;
+  }
+  .detail-main-image {
+    min-height: 390px;
+  }
+  .detail-main-image img {
+    height: 360px;
+  }
+  .detail-meta,
+  .detail-controls,
+  .related-grid {
+    grid-template-columns: 1fr;
+  }
+  .detail-price-row,
+  .detail-subtotal {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+  .footer-socials {
+    justify-content: flex-start;
+  }
+}
+@media (max-width: 580px) {
+  .site-footer {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+  .detail-info h1 {
+    font-size: 40px;
+  }
+}

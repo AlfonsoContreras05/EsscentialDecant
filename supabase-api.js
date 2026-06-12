@@ -82,6 +82,17 @@ async function fetchProducts() {
   if (error) throw error;
   return data || [];
 }
+async function fetchProductById(id) {
+  requireSupabaseConfig();
+  const { data, error } = await supabaseClient
+    .from("products")
+    .select("*, category:categories(id, name, order_index), profile:profiles(id, name, order_index)")
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data;
+}
+
 async function fetchSiteSettings() {
   requireSupabaseConfig();
   const { data, error } = await supabaseClient.from("site_settings").select("*").eq("id", 1).maybeSingle();

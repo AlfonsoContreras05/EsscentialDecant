@@ -94,13 +94,22 @@ function renderProductGallery(product, productImage, gallery) {
     button.type = "button";
     button.textContent = index + 1;
     if (index === 0) button.classList.add("active");
-    button.addEventListener("click", () => {
+    button.addEventListener("click", (event) => {
+      event.stopPropagation();
       productImage.src = imageUrl;
       gallery.querySelectorAll("button").forEach((currentButton) => currentButton.classList.remove("active"));
       button.classList.add("active");
     });
     gallery.appendChild(button);
   });
+}
+
+function getProductDetailUrl(product) {
+  return `product.html?id=${encodeURIComponent(product.id)}`;
+}
+
+function goToProductDetail(product) {
+  window.location.href = getProductDetailUrl(product);
 }
 
 function renderProducts() {
@@ -124,6 +133,7 @@ function renderProducts() {
     const description = node.querySelector("p");
     const price = node.querySelector(".price");
     const addButton = node.querySelector(".add-cart");
+    const detailLink = node.querySelector(".product-detail-link");
     const sizeButtons = node.querySelectorAll(".size-picker button");
     const [accent, color] = getProfileColors(getProductProfileName(product));
     let selectedSize = "5";
@@ -132,6 +142,9 @@ function renderProducts() {
     card.style.setProperty("--accent-solid", color);
     bottle.style.setProperty("--accent-solid", color);
     if (product.featured) card.classList.add("featured");
+    card.setAttribute("role", "link");
+    card.setAttribute("tabindex", "0");
+    card.setAttribute("aria-label", `Ver detalle de ${product.name}`);
 
     if (getProductImages(product).length > 0) {
       renderProductGallery(product, productImage, gallery);
@@ -149,13 +162,16 @@ function renderProducts() {
     title.textContent = product.name;
     description.textContent = product.description;
     price.textContent = formatPrice(getProductPrice(product, selectedSize));
+    detailLink.href = getProductDetailUrl(product);
 
     sizeButtons.forEach((button) => {
-      button.addEventListener("click", () => {
+      button.addEventListener("click", (event) => {
+        event.stopPropagation();
         selectedSize = button.dataset.size;
         sizeButtons.forEach((currentButton) => currentButton.classList.remove("selected"));
         button.classList.add("selected");
         price.textContent = formatPrice(getProductPrice(product, selectedSize));
+    detailLink.href = getProductDetailUrl(product);
       });
     });
 
@@ -164,8 +180,19 @@ function renderProducts() {
       addButton.textContent = "Agotado";
       addButton.classList.add("disabled");
     } else {
-      addButton.addEventListener("click", () => { addToCart(product, selectedSize); openCart(); });
+      addButton.addEventListener("click", (event) => { event.stopPropagation(); addToCart(product, selectedSize); openCart(); });
     }
+    detailLink.addEventListener("click", (event) => { event.stopPropagation(); });
+    card.addEventListener("click", (event) => {
+      if (event.target.closest("button, a")) return;
+      goToProductDetail(product);
+    });
+    card.addEventListener("keydown", (event) => {
+      if (event.key === "Enter" || event.key === " ") {
+        event.preventDefault();
+        goToProductDetail(product);
+      }
+    });
     productGrid.appendChild(node);
   });
 }

@@ -55,3 +55,16 @@ Este número corresponde a:
 ## Importante
 
 No uses `service_role key` en frontend.
+
+
+## V5.2 Comercial
+
+Incluye mejoras públicas solicitadas por cliente:
+
+- Footer con redes sociales reales: Instagram, Facebook, TikTok y WhatsApp.
+- Botón flotante de WhatsApp armónico con el diseño.
+- Nueva vista individual de producto en `product.html?id=...`.
+- Click en tarjeta del catálogo abre detalle del producto.
+- Página de producto con galería, formatos 3ml/5ml/10ml, cantidad, carrito, consulta por WhatsApp y relacionados.
+
+IMPORTANTE: si aplicas esta versión sobre una carpeta ya configurada, conserva tu `supabase-config.js` actual para no perder URL y publishable key.
