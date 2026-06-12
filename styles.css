@@ -1509,3 +1509,23 @@ footer strong {
     flex: 1 1 auto;
   }
 }
+
+
+/* Essential Decant V5.1 — Supabase + 3 imágenes + portada */
+.hero-brand-badge { display: none !important; }
+.showcase-image { display: none; position: relative; z-index: 3; width: min(82%, 520px); height: min(72%, 520px); object-fit: contain; filter: drop-shadow(0 30px 44px rgba(0,0,0,.45)); }
+.showcase.custom-hero-active .showcase-image { display: block; }
+.showcase.custom-hero-active .hero-bottle,
+.showcase.custom-hero-active .mini-spray,
+.showcase.custom-hero-active .glow-ring { display: none; }
+.showcase.custom-hero-active { background: radial-gradient(circle at 50% 38%, rgba(86,200,255,.20), transparent 22rem), linear-gradient(145deg, rgba(255,255,255,.14), rgba(255,255,255,.035)); }
+.product-gallery { position: absolute; z-index: 4; bottom: 14px; left: 50%; transform: translateX(-50%); display: flex; gap: 7px; }
+.product-gallery button { width: 28px; height: 28px; border: 1px solid var(--line); border-radius: 999px; background: rgba(0,0,0,.42); color: var(--text); font-weight: 900; backdrop-filter: blur(10px); }
+.product-gallery button.active { color: #111; background: linear-gradient(135deg, var(--gold), var(--gold-2)); }
+.product-images-admin { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.multi-preview-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; }
+.multi-preview-grid .image-preview-wrap, .hero-preview-wrap { align-items: flex-start; flex-direction: column; }
+#imagePreview1, #imagePreview2, #imagePreview3, #heroImagePreview { display: none; width: 100%; min-height: 140px; max-height: 220px; object-fit: contain; border: 1px solid var(--line); border-radius: 18px; background: rgba(255,255,255,.06); padding: 8px; }
+#imagePreview1.visible, #imagePreview2.visible, #imagePreview3.visible, #heroImagePreview.visible { display: block; }
+.hero-admin-panel { margin-top: 30px; }
+@media (max-width: 900px) { .product-images-admin, .multi-preview-grid { grid-template-columns: 1fr; } }

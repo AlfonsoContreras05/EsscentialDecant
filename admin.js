@@ -1,18 +1,20 @@
 const loginScreen = document.querySelector("#loginScreen");
 const adminApp = document.querySelector("#adminApp");
 const loginForm = document.querySelector("#loginForm");
+const emailInput = document.querySelector("#adminEmail");
 const passwordInput = document.querySelector("#adminPassword");
 const logoutButton = document.querySelector("#logoutButton");
+const reloadDataButton = document.querySelector("#reloadData");
+
+const heroForm = document.querySelector("#heroForm");
+const heroImageInput = document.querySelector("#heroImage");
+const heroImagePreview = document.querySelector("#heroImagePreview");
+const removeHeroImageButton = document.querySelector("#removeHeroImage");
 
 const form = document.querySelector("#productForm");
 const formTitle = document.querySelector("#formTitle");
-const imagePreview = document.querySelector("#imagePreview");
-const removeImageButton = document.querySelector("#removeImage");
 const resetFormButton = document.querySelector("#resetForm");
-const resetDefaultsButton = document.querySelector("#resetDefaults");
 const adminProductList = document.querySelector("#adminProductList");
-const exportCatalogButton = document.querySelector("#exportCatalog");
-const importCatalogInput = document.querySelector("#importCatalog");
 
 const categorySelect = document.querySelector("#categorySelect");
 const profileSelect = document.querySelector("#profileSelect");
@@ -21,490 +23,357 @@ const profileForm = document.querySelector("#profileForm");
 const categoryList = document.querySelector("#categoryList");
 const profileList = document.querySelector("#profileList");
 
-let products = getProducts();
-let currentImage = "";
+let products = [];
+let categories = [];
+let profiles = [];
+let siteSettings = { hero_image_url: null };
+let currentImages = { 1: "", 2: "", 3: "" };
+let selectedImageBlobs = { 1: null, 2: null, 3: null };
+let currentHeroImage = "";
+let selectedHeroBlob = null;
 
-function showAdmin() {
-  loginScreen.classList.add("hidden");
-  adminApp.classList.remove("hidden");
-  renderTaxonomies();
-  renderAdminProducts();
-}
+function showAdmin() { loginScreen.classList.add("hidden"); adminApp.classList.remove("hidden"); }
+function showLogin() { loginScreen.classList.remove("hidden"); adminApp.classList.add("hidden"); }
 
-function showLogin() {
-  loginScreen.classList.remove("hidden");
-  adminApp.classList.add("hidden");
-}
-
-function checkAuth() {
-  if (isAdminAuthenticated()) {
-    showAdmin();
-  } else {
+async function checkAuth() {
+  try {
+    const session = await getCurrentSession();
+    if (session) { showAdmin(); await loadAdminData(); }
+    else showLogin();
+  } catch (error) {
+    console.error(error);
     showLogin();
   }
 }
 
-loginForm.addEventListener("submit", (event) => {
+loginForm.addEventListener("submit", async (event) => {
   event.preventDefault();
-
-  if (passwordInput.value === ADMIN_PASSWORD) {
-    setAdminAuthenticated(true);
+  try {
+    await signInAdmin(emailInput.value.trim(), passwordInput.value);
     passwordInput.value = "";
     showAdmin();
-    return;
+    await loadAdminData();
+  } catch (error) {
+    alert(`No se pudo iniciar sesión: ${error.message}`);
   }
-
-  alert("Clave incorrecta.");
 });
 
-logoutButton.addEventListener("click", () => {
-  setAdminAuthenticated(false);
+logoutButton.addEventListener("click", async () => {
+  try { await signOutAdmin(); } catch (error) { console.error(error); }
   showLogin();
 });
 
-function compressImage(file, maxWidth = 900, quality = 0.78) {
+reloadDataButton?.addEventListener("click", loadAdminData);
+
+async function loadAdminData() {
+  try {
+    [categories, profiles, products, siteSettings] = await Promise.all([fetchCategories(), fetchProfiles(), fetchProducts(), fetchSiteSettings()]);
+    renderHeroSettings();
+    renderTaxonomies();
+    renderAdminProducts();
+    renderTaxonomySelects();
+  } catch (error) {
+    alert(`No se pudieron cargar los datos: ${error.message}`);
+  }
+}
+
+function compressImage(file, maxWidth = 1200, quality = 0.82) {
   return new Promise((resolve, reject) => {
-    if (!file) {
-      resolve(currentImage);
-      return;
-    }
-
+    if (!file) { resolve({ blob: null, preview: "" }); return; }
     const reader = new FileReader();
-
     reader.onload = () => {
       const image = new Image();
-
       image.onload = () => {
         const scale = Math.min(1, maxWidth / image.width);
         const canvas = document.createElement("canvas");
         const width = Math.round(image.width * scale);
         const height = Math.round(image.height * scale);
-
         canvas.width = width;
         canvas.height = height;
-
-        const context = canvas.getContext("2d");
-        context.drawImage(image, 0, 0, width, height);
-
-        resolve(canvas.toDataURL("image/jpeg", quality));
+        canvas.getContext("2d").drawImage(image, 0, 0, width, height);
+        canvas.toBlob((blob) => {
+          if (!blob) { reject(new Error("No se pudo comprimir la imagen.")); return; }
+          resolve({ blob, preview: canvas.toDataURL("image/jpeg", quality) });
+        }, "image/jpeg", quality);
       };
-
       image.onerror = () => reject(new Error("No se pudo procesar la imagen."));
       image.src = reader.result;
     };
-
     reader.onerror = () => reject(new Error("No se pudo leer la imagen."));
     reader.readAsDataURL(file);
   });
 }
 
-function setPreview(image) {
-  currentImage = image || "";
-
-  if (currentImage) {
-    imagePreview.src = currentImage;
-    imagePreview.classList.add("visible");
-    removeImageButton.classList.add("visible");
+function setImagePreview(slot, imageUrl) {
+  currentImages[slot] = imageUrl || "";
+  const preview = document.querySelector(`#imagePreview${slot}`);
+  const removeButton = document.querySelector(`[data-remove-image="${slot}"]`);
+  if (!preview || !removeButton) return;
+  if (currentImages[slot]) {
+    preview.src = currentImages[slot];
+    preview.classList.add("visible");
+    removeButton.classList.add("visible");
   } else {
-    imagePreview.removeAttribute("src");
-    imagePreview.classList.remove("visible");
-    removeImageButton.classList.remove("visible");
+    preview.removeAttribute("src");
+    preview.classList.remove("visible");
+    removeButton.classList.remove("visible");
   }
+}
+
+function resetProductImages() {
+  selectedImageBlobs = { 1: null, 2: null, 3: null };
+  currentImages = { 1: "", 2: "", 3: "" };
+  [1, 2, 3].forEach((slot) => {
+    setImagePreview(slot, "");
+    const input = document.querySelector(`[name="image${slot}"]`);
+    if (input) input.value = "";
+  });
 }
 
 function resetForm() {
   form.reset();
   form.elements.id.value = "";
   formTitle.textContent = "Agregar producto";
-  setPreview("");
+  resetProductImages();
   renderTaxonomySelects();
 }
 
-function renderTaxonomySelects() {
-  const selectedCategory = form.elements.category.value;
-  const selectedProfile = form.elements.profile.value;
+function renderHeroSettings() {
+  currentHeroImage = siteSettings.hero_image_url || "";
+  selectedHeroBlob = null;
+  if (!heroImagePreview || !removeHeroImageButton) return;
+  if (currentHeroImage) {
+    heroImagePreview.src = currentHeroImage;
+    heroImagePreview.classList.add("visible");
+    removeHeroImageButton.classList.add("visible");
+  } else {
+    heroImagePreview.removeAttribute("src");
+    heroImagePreview.classList.remove("visible");
+    removeHeroImageButton.classList.remove("visible");
+  }
+  if (heroImageInput) heroImageInput.value = "";
+}
 
+heroImageInput?.addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) { alert("La imagen pesa mucho. Intenta usar una menor a 5MB."); heroImageInput.value = ""; return; }
+  try {
+    const { blob, preview } = await compressImage(file, 1400, 0.84);
+    selectedHeroBlob = blob;
+    heroImagePreview.src = preview;
+    heroImagePreview.classList.add("visible");
+    removeHeroImageButton.classList.add("visible");
+  } catch (error) { alert(error.message); }
+});
+
+heroForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  try {
+    let heroUrl = currentHeroImage;
+    if (selectedHeroBlob) heroUrl = await uploadHeroImage(selectedHeroBlob);
+    siteSettings = await updateSiteSettings({ hero_image_url: heroUrl || null });
+    selectedHeroBlob = null;
+    renderHeroSettings();
+    alert("Imagen de portada guardada.");
+  } catch (error) { alert(`No se pudo guardar la portada: ${error.message}`); }
+});
+
+removeHeroImageButton?.addEventListener("click", async () => {
+  const confirmRemove = confirm("¿Quitar la imagen de portada?");
+  if (!confirmRemove) return;
+  try {
+    siteSettings = await updateSiteSettings({ hero_image_url: null });
+    selectedHeroBlob = null;
+    currentHeroImage = "";
+    renderHeroSettings();
+  } catch (error) { alert(`No se pudo quitar la imagen: ${error.message}`); }
+});
+
+function renderTaxonomySelects() {
+  const selectedCategory = form.elements.category_id?.value;
+  const selectedProfile = form.elements.profile_id?.value;
   categorySelect.innerHTML = "";
   profileSelect.innerHTML = "";
-
-  getCategories().forEach((category) => {
+  categories.forEach((category) => {
     const option = document.createElement("option");
     option.value = category.id;
     option.textContent = category.name;
     categorySelect.appendChild(option);
   });
-
-  getProfiles().forEach((profile) => {
+  profiles.forEach((profile) => {
     const option = document.createElement("option");
     option.value = profile.id;
     option.textContent = profile.name;
     profileSelect.appendChild(option);
   });
-
-  if (selectedCategory && [...categorySelect.options].some((option) => option.value === selectedCategory)) {
-    categorySelect.value = selectedCategory;
-  }
-
-  if (selectedProfile && [...profileSelect.options].some((option) => option.value === selectedProfile)) {
-    profileSelect.value = selectedProfile;
-  }
+  if (selectedCategory && [...categorySelect.options].some((option) => option.value === selectedCategory)) categorySelect.value = selectedCategory;
+  if (selectedProfile && [...profileSelect.options].some((option) => option.value === selectedProfile)) profileSelect.value = selectedProfile;
 }
 
-function renderTaxonomies() {
-  renderTaxonomySelects();
-  renderTaxonomyList("category");
-  renderTaxonomyList("profile");
-}
-
+function renderTaxonomies() { renderTaxonomySelects(); renderTaxonomyList("category"); renderTaxonomyList("profile"); }
 function renderTaxonomyList(type) {
   const isCategory = type === "category";
   const list = isCategory ? categoryList : profileList;
-  const items = isCategory ? getCategories() : getProfiles();
-  const usedValues = new Set(getProducts().map((product) => isCategory ? product.category : product.profile));
-
+  const items = isCategory ? categories : profiles;
+  const usedValues = new Set(products.map((product) => isCategory ? product.category_id : product.profile_id));
   list.innerHTML = "";
-
   items.forEach((item, index) => {
     const row = document.createElement("div");
     row.className = "taxonomy-row";
-    row.innerHTML = `
-      <input value="${item.name}" aria-label="Editar ${item.name}">
-      <div class="taxonomy-actions">
-        <button type="button" data-action="save">Guardar</button>
-        <button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button>
-        <button type="button" data-action="down" ${index === items.length - 1 ? "disabled" : ""}>↓</button>
-        <button type="button" data-action="delete" ${usedValues.has(item.id) ? "disabled" : ""}>Eliminar</button>
-      </div>
-    `;
-
+    row.innerHTML = `<input value="${item.name}" aria-label="Editar ${item.name}"><div class="taxonomy-actions"><button type="button" data-action="save">Guardar</button><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === items.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="delete" ${usedValues.has(item.id) ? "disabled" : ""}>Eliminar</button></div>`;
     row.querySelector('[data-action="save"]').addEventListener("click", () => renameTaxonomyItem(type, item.id, row.querySelector("input").value));
     row.querySelector('[data-action="up"]').addEventListener("click", () => moveTaxonomyItem(type, index, -1));
     row.querySelector('[data-action="down"]').addEventListener("click", () => moveTaxonomyItem(type, index, 1));
     row.querySelector('[data-action="delete"]').addEventListener("click", () => deleteTaxonomyItem(type, item.id));
-
     list.appendChild(row);
   });
 }
-
-function addTaxonomyItem(type, name) {
+async function addTaxonomyItem(type, name) {
   const cleanName = name.trim();
   if (!cleanName) return;
-
-  const items = type === "category" ? getCategories() : getProfiles();
-  const id = createSlug(cleanName);
-
-  if (items.some((item) => item.id === id)) {
-    alert("Ya existe una clasificación con ese nombre.");
-    return;
-  }
-
-  items.push({ id, name: cleanName, order: items.length + 1 });
-
-  if (type === "category") {
-    saveCategories(items);
-  } else {
-    saveProfiles(items);
-  }
-
-  renderTaxonomies();
+  try { if (type === "category") await createCategory(cleanName); else await createProfile(cleanName); await loadAdminData(); }
+  catch (error) { alert(`No se pudo crear: ${error.message}`); }
 }
-
-function renameTaxonomyItem(type, id, name) {
+async function renameTaxonomyItem(type, id, name) {
   const cleanName = name.trim();
-  if (!cleanName) {
-    alert("El nombre no puede quedar vacío.");
-    return;
-  }
-
-  const items = type === "category" ? getCategories() : getProfiles();
-  const updated = items.map((item) => item.id === id ? { ...item, name: cleanName } : item);
-
-  if (type === "category") {
-    saveCategories(updated);
-  } else {
-    saveProfiles(updated);
-  }
-
-  renderTaxonomies();
-  renderAdminProducts();
+  if (!cleanName) { alert("El nombre no puede quedar vacío."); return; }
+  try { if (type === "category") await updateCategory(id, { name: cleanName }); else await updateProfile(id, { name: cleanName }); await loadAdminData(); }
+  catch (error) { alert(`No se pudo guardar: ${error.message}`); }
 }
-
-function moveTaxonomyItem(type, index, direction) {
-  const items = type === "category" ? getCategories() : getProfiles();
+async function moveTaxonomyItem(type, index, direction) {
+  const items = type === "category" ? categories : profiles;
   const newIndex = index + direction;
-
   if (newIndex < 0 || newIndex >= items.length) return;
-
   const nextItems = [...items];
   const [item] = nextItems.splice(index, 1);
   nextItems.splice(newIndex, 0, item);
-
-  if (type === "category") {
-    saveCategories(nextItems);
-  } else {
-    saveProfiles(nextItems);
-  }
-
-  renderTaxonomies();
+  try {
+    await Promise.all(nextItems.map((currentItem, currentIndex) => type === "category" ? updateCategoryOrder(currentItem.id, currentIndex + 1) : updateProfileOrder(currentItem.id, currentIndex + 1)));
+    await loadAdminData();
+  } catch (error) { alert(`No se pudo ordenar: ${error.message}`); }
 }
-
-function deleteTaxonomyItem(type, id) {
+async function deleteTaxonomyItem(type, id) {
   const isCategory = type === "category";
-  const used = getProducts().some((product) => isCategory ? product.category === id : product.profile === id);
-
-  if (used) {
-    alert("No puedes eliminar una clasificación que está siendo usada por productos.");
-    return;
-  }
-
+  const used = products.some((product) => isCategory ? product.category_id === id : product.profile_id === id);
+  if (used) { alert("No puedes eliminar una clasificación que está siendo usada por productos."); return; }
   const confirmDelete = confirm("¿Eliminar esta clasificación?");
   if (!confirmDelete) return;
-
-  const items = isCategory ? getCategories() : getProfiles();
-  const filtered = items.filter((item) => item.id !== id);
-
-  if (isCategory) {
-    saveCategories(filtered);
-  } else {
-    saveProfiles(filtered);
-  }
-
-  renderTaxonomies();
+  try { if (type === "category") await deleteCategory(id); else await deleteProfile(id); await loadAdminData(); }
+  catch (error) { alert(`No se pudo eliminar: ${error.message}`); }
 }
-
-categoryForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  addTaxonomyItem("category", new FormData(categoryForm).get("name"));
-  categoryForm.reset();
-});
-
-profileForm.addEventListener("submit", (event) => {
-  event.preventDefault();
-  addTaxonomyItem("profile", new FormData(profileForm).get("name"));
-  profileForm.reset();
-});
+categoryForm.addEventListener("submit", async (event) => { event.preventDefault(); await addTaxonomyItem("category", new FormData(categoryForm).get("name")); categoryForm.reset(); });
+profileForm.addEventListener("submit", async (event) => { event.preventDefault(); await addTaxonomyItem("profile", new FormData(profileForm).get("name")); profileForm.reset(); });
 
 function renderAdminProducts() {
-  products = getProducts();
   adminProductList.innerHTML = "";
-
-  if (products.length === 0) {
-    adminProductList.innerHTML = `
-      <div class="empty-state">
-        <strong>No hay productos.</strong>
-        <span>Puedes crear uno nuevo o restaurar los productos demo.</span>
-      </div>
-    `;
-    return;
-  }
-
+  if (products.length === 0) { adminProductList.innerHTML = `<div class="empty-state"><strong>No hay productos.</strong><span>Puedes crear uno nuevo desde el formulario.</span></div>`; return; }
   products.forEach((product, index) => {
     const article = document.createElement("article");
     article.className = "admin-product-card";
-
-    const imageBlock = product.image
-      ? `<img src="${product.image}" alt="${product.name}">`
-      : `<div class="admin-fake-bottle" style="--accent-solid:${product.color}"></div>`;
-
-    article.innerHTML = `
-      <div class="admin-product-img">${imageBlock}</div>
-      <div class="admin-product-info">
-        <strong>${product.featured ? "★ " : ""}${product.name}</strong>
-        <span>${product.brand} · ${product.tag}</span>
-        <small>${product.stock} · ${getTaxonomyName("category", product.category)} · ${getTaxonomyName("profile", product.profile)} · 3ml ${formatPrice(product.prices["3"])} · 5ml ${formatPrice(product.prices["5"])} · 10ml ${formatPrice(product.prices["10"])}</small>
-      </div>
-      <div class="admin-product-actions">
-        <button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button>
-        <button type="button" data-action="down" ${index === products.length - 1 ? "disabled" : ""}>↓</button>
-        <button type="button" data-action="featured">${product.featured ? "Quitar destacado" : "Destacar"}</button>
-        <button type="button" data-action="edit">Editar</button>
-        <button type="button" data-action="delete">Eliminar</button>
-      </div>
-    `;
-
+    const [, color] = getProfileColors(getProductProfileName(product));
+    const firstImage = getPrimaryProductImage(product);
+    const imageBlock = firstImage ? `<img src="${firstImage}" alt="${product.name}">` : `<div class="admin-fake-bottle" style="--accent-solid:${color}"></div>`;
+    const imageCount = getProductImages(product).length;
+    article.innerHTML = `<div class="admin-product-img">${imageBlock}</div><div class="admin-product-info"><strong>${product.featured ? "★ " : ""}${product.name}</strong><span>${product.brand} · ${product.tag}</span><small>${product.stock} · ${getProductCategoryName(product)} · ${getProductProfileName(product)} · ${imageCount}/3 imágenes · 3ml ${formatPrice(product.price_3ml)} · 5ml ${formatPrice(product.price_5ml)} · 10ml ${formatPrice(product.price_10ml)}</small></div><div class="admin-product-actions"><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === products.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="featured">${product.featured ? "Quitar destacado" : "Destacar"}</button><button type="button" data-action="edit">Editar</button><button type="button" data-action="delete">Eliminar</button></div>`;
     article.querySelector('[data-action="up"]').addEventListener("click", () => moveProduct(index, -1));
     article.querySelector('[data-action="down"]').addEventListener("click", () => moveProduct(index, 1));
     article.querySelector('[data-action="featured"]').addEventListener("click", () => toggleFeatured(product.id));
     article.querySelector('[data-action="edit"]').addEventListener("click", () => editProduct(product.id));
-    article.querySelector('[data-action="delete"]').addEventListener("click", () => deleteProduct(product.id));
-
+    article.querySelector('[data-action="delete"]').addEventListener("click", () => removeProduct(product.id));
     adminProductList.appendChild(article);
   });
 }
-
-function moveProduct(index, direction) {
+async function moveProduct(index, direction) {
   const newIndex = index + direction;
   if (newIndex < 0 || newIndex >= products.length) return;
-
   const nextProducts = [...products];
   const [movedProduct] = nextProducts.splice(index, 1);
   nextProducts.splice(newIndex, 0, movedProduct);
-
-  saveProducts(nextProducts);
-  renderAdminProducts();
+  try { await Promise.all(nextProducts.map((product, productIndex) => updateProductOrder(product.id, productIndex + 1))); await loadAdminData(); }
+  catch (error) { alert(`No se pudo ordenar: ${error.message}`); }
 }
-
-function toggleFeatured(id) {
-  const nextProducts = products.map((product) => {
-    if (product.id !== id) return product;
-    return { ...product, featured: !product.featured };
-  });
-
-  saveProducts(nextProducts);
-  renderAdminProducts();
+async function toggleFeatured(id) {
+  const product = products.find((item) => item.id === id);
+  if (!product) return;
+  try { await saveProduct({ ...product, featured: !product.featured }); await loadAdminData(); }
+  catch (error) { alert(`No se pudo destacar: ${error.message}`); }
 }
-
 function editProduct(id) {
   const product = products.find((item) => item.id === id);
   if (!product) return;
-
   formTitle.textContent = "Editar producto";
   form.elements.id.value = product.id;
   form.elements.name.value = product.name;
   form.elements.brand.value = product.brand;
-
-  renderTaxonomySelects();
-
-  form.elements.category.value = product.category;
-  form.elements.profile.value = product.profile;
+  form.elements.category_id.value = product.category_id;
+  form.elements.profile_id.value = product.profile_id;
   form.elements.tag.value = product.tag;
   form.elements.stock.value = product.stock;
-  form.elements.price3.value = product.prices["3"];
-  form.elements.price5.value = product.prices["5"];
-  form.elements.price10.value = product.prices["10"];
+  form.elements.price3.value = product.price_3ml;
+  form.elements.price5.value = product.price_5ml;
+  form.elements.price10.value = product.price_10ml;
   form.elements.description.value = product.description;
   form.elements.featured.checked = product.featured;
-
-  setPreview(product.image || "");
+  selectedImageBlobs = { 1: null, 2: null, 3: null };
+  setImagePreview(1, product.image_url_1 || "");
+  setImagePreview(2, product.image_url_2 || "");
+  setImagePreview(3, product.image_url_3 || "");
   window.scrollTo({ top: 0, behavior: "smooth" });
 }
-
-function deleteProduct(id) {
+async function removeProduct(id) {
   const product = products.find((item) => item.id === id);
   if (!product) return;
-
   const confirmDelete = confirm(`¿Eliminar "${product.name}" del catálogo?`);
   if (!confirmDelete) return;
-
-  products = products.filter((item) => item.id !== id);
-  saveProducts(products);
-  renderAdminProducts();
-  renderTaxonomies();
-  resetForm();
+  try { await deleteProduct(id); await loadAdminData(); resetForm(); }
+  catch (error) { alert(`No se pudo eliminar: ${error.message}`); }
 }
 
 form.addEventListener("submit", async (event) => {
   event.preventDefault();
-
   const formData = new FormData(form);
   const id = formData.get("id");
   const name = formData.get("name").trim();
-  const brand = formData.get("brand").trim();
-  const category = formData.get("category");
-  const profile = formData.get("profile");
-  const tag = formData.get("tag").trim();
-  const stock = formData.get("stock");
-  const description = formData.get("description").trim();
-  const featured = formData.get("featured") === "on";
-  const imageFile = formData.get("image");
-
-  const [accent, color] = getProfileColors(profile);
-  const image = await compressImage(imageFile && imageFile.size ? imageFile : null);
-
   const existingProduct = products.find((product) => product.id === id);
-  const productData = {
-    id: id || `${createSlug(name)}-${Date.now()}`,
-    name,
-    brand,
-    category,
-    profile,
-    tag,
-    stock,
-    featured,
-    order: existingProduct?.order || products.length + 1,
-    description,
-    prices: {
-      "3": Number(formData.get("price3")),
-      "5": Number(formData.get("price5")),
-      "10": Number(formData.get("price10"))
-    },
-    accent,
-    color,
-    image
-  };
-
-  const existingIndex = products.findIndex((item) => item.id === productData.id);
-
-  if (existingIndex >= 0) {
-    products[existingIndex] = productData;
-  } else {
-    products.unshift(productData);
-  }
-
-  saveProducts(products);
-  renderAdminProducts();
-  renderTaxonomies();
-  resetForm();
-});
-
-form.elements.image.addEventListener("change", async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  if (file.size > 4 * 1024 * 1024) {
-    alert("La imagen pesa mucho. Intenta usar una menor a 4MB.");
-    form.elements.image.value = "";
-    return;
-  }
-
   try {
-    const image = await compressImage(file);
-    setPreview(image);
-  } catch (error) {
-    alert(error.message);
-  }
+    const imageUrls = { 1: currentImages[1] || null, 2: currentImages[2] || null, 3: currentImages[3] || null };
+    for (const slot of [1, 2, 3]) if (selectedImageBlobs[slot]) imageUrls[slot] = await uploadProductImage(selectedImageBlobs[slot], name, slot);
+    await saveProduct({
+      id: id || null,
+      name,
+      brand: formData.get("brand").trim(),
+      category_id: formData.get("category_id"),
+      profile_id: formData.get("profile_id"),
+      tag: formData.get("tag").trim(),
+      stock: formData.get("stock"),
+      featured: formData.get("featured") === "on",
+      order_index: existingProduct?.order_index || products.length + 1,
+      description: formData.get("description").trim(),
+      price_3ml: Number(formData.get("price3")),
+      price_5ml: Number(formData.get("price5")),
+      price_10ml: Number(formData.get("price10")),
+      image_url_1: imageUrls[1],
+      image_url_2: imageUrls[2],
+      image_url_3: imageUrls[3]
+    });
+    await loadAdminData();
+    resetForm();
+  } catch (error) { alert(`No se pudo guardar el producto: ${error.message}`); }
 });
 
-removeImageButton.addEventListener("click", () => {
-  form.elements.image.value = "";
-  setPreview("");
+[1, 2, 3].forEach((slot) => {
+  const input = document.querySelector(`[name="image${slot}"]`);
+  const removeButton = document.querySelector(`[data-remove-image="${slot}"]`);
+  input?.addEventListener("change", async (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    if (file.size > 5 * 1024 * 1024) { alert("La imagen pesa mucho. Intenta usar una menor a 5MB."); input.value = ""; return; }
+    try { const { blob, preview } = await compressImage(file); selectedImageBlobs[slot] = blob; setImagePreview(slot, preview); }
+    catch (error) { alert(error.message); }
+  });
+  removeButton?.addEventListener("click", () => { input.value = ""; selectedImageBlobs[slot] = null; setImagePreview(slot, ""); });
 });
 
 resetFormButton.addEventListener("click", resetForm);
-
-resetDefaultsButton.addEventListener("click", () => {
-  const confirmReset = confirm("¿Restaurar los productos demo? Se reemplazará el catálogo, categorías y perfiles actuales.");
-  if (!confirmReset) return;
-
-  products = resetProducts();
-  renderTaxonomies();
-  renderAdminProducts();
-  resetForm();
-});
-
-exportCatalogButton.addEventListener("click", exportCatalog);
-
-importCatalogInput.addEventListener("change", async (event) => {
-  const file = event.target.files[0];
-  if (!file) return;
-
-  const confirmImport = confirm("¿Importar este catálogo? Reemplazará el catálogo actual.");
-  if (!confirmImport) {
-    event.target.value = "";
-    return;
-  }
-
-  try {
-    products = await importCatalogFile(file);
-    renderTaxonomies();
-    renderAdminProducts();
-    resetForm();
-    alert("Catálogo importado correctamente.");
-  } catch (error) {
-    alert(error.message);
-  } finally {
-    event.target.value = "";
-  }
-});
-
 checkAuth();

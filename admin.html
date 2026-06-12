@@ -19,14 +19,19 @@
       <p>Esta protección es simple y local. Sirve para cliente local sin transacciones delicadas.</p>
 
       <label>
-        Clave de administrador
-        <input id="adminPassword" type="password" placeholder="Ingresa la clave" autocomplete="current-password" />
+        Correo administrador
+        <input id="adminEmail" type="email" placeholder="admin@essentialdecant.cl" autocomplete="username" />
+      </label>
+
+      <label>
+        Contraseña
+        <input id="adminPassword" type="password" placeholder="Contraseña de Supabase Auth" autocomplete="current-password" />
       </label>
 
       <button class="btn primary" type="submit">Entrar</button>
       <a class="btn ghost" href="index.html">Volver al sitio</a>
 
-    
+      <small>El usuario se crea en Supabase Auth. Ya no usamos clave local.</small>
     </form>
   </section>
 
@@ -53,7 +58,7 @@
         <span class="eyebrow">App oficial liviana</span>
         <h1>Administrador de productos.</h1>
         <p>
-          Agrega, edita, elimina, ordena, importa y exporta el catálogo. Todo se guarda en este navegador.
+          Agrega, edita, elimina y ordena el catálogo. Todo se guarda en Supabase y se ve para todos.
         </p>
       </section>
     </header>
@@ -61,23 +66,43 @@
     <main>
       <section class="admin-tools-panel">
         <div>
-          <span class="eyebrow">Respaldo</span>
-          <h2>Importar / exportar catálogo</h2>
+          <span class="eyebrow">Almacenamiento central</span>
+          <h2>Supabase conectado</h2>
           <p>
-            Como esta versión usa localStorage, el respaldo JSON es obligatorio para no perder el catálogo.
+            Los cambios del administrador se guardan en Supabase. Cuando agregues, edites o elimines productos,
+            el catálogo público se actualiza para todos.
           </p>
         </div>
 
         <div class="backup-actions">
-          <button class="btn primary" id="exportCatalog" type="button">Exportar JSON</button>
-          <label class="btn ghost file-button">
-            Importar JSON
-            <input id="importCatalog" type="file" accept="application/json" />
-          </label>
-          <button class="btn ghost" id="resetDefaults" type="button">Restaurar demo</button>
+          <button class="btn primary" id="reloadData" type="button">Recargar datos</button>
         </div>
       </section>
 
+      <section class="admin-tools-panel hero-admin-panel">
+        <div>
+          <span class="eyebrow">Portada landing</span>
+          <h2>Imagen principal</h2>
+          <p>
+            Elige la imagen que aparecerá en la tarjeta principal de la landing. El logo se quitó de esa zona
+            para que la portada respire mejor.
+          </p>
+        </div>
+
+        <form class="admin-form" id="heroForm">
+          <label>
+            Imagen portada
+            <input id="heroImage" name="heroImage" type="file" accept="image/*" />
+          </label>
+
+          <div class="image-preview-wrap hero-preview-wrap">
+            <img id="heroImagePreview" alt="Vista previa portada" />
+            <button class="clear-image" id="removeHeroImage" type="button">Quitar imagen</button>
+          </div>
+
+          <button class="btn primary" type="submit">Guardar portada</button>
+        </form>
+      </section>
 
       <section class="taxonomy-panel">
         <div class="taxonomy-head">
@@ -142,11 +167,11 @@
           <div class="form-row">
             <label>
               Categoría
-              <select name="category" id="categorySelect"></select>
+              <select name="category_id" id="categorySelect"></select>
             </label>
             <label>
               Perfil
-              <select name="profile" id="profileSelect"></select>
+              <select name="profile_id" id="profileSelect"></select>
             </label>
           </div>
 
@@ -199,7 +224,19 @@
             <button class="clear-image" id="removeImage" type="button">Quitar imagen</button>
           </div>
 
-          <div class="admin-actions">
+          <div class="product-images-admin">
+          <label>Imagen 1<input name="image1" type="file" accept="image/*" /></label>
+          <label>Imagen 2<input name="image2" type="file" accept="image/*" /></label>
+          <label>Imagen 3<input name="image3" type="file" accept="image/*" /></label>
+        </div>
+
+        <div class="multi-preview-grid">
+          <div class="image-preview-wrap"><img id="imagePreview1" alt="Vista previa imagen 1" /><button class="clear-image" data-remove-image="1" type="button">Quitar imagen 1</button></div>
+          <div class="image-preview-wrap"><img id="imagePreview2" alt="Vista previa imagen 2" /><button class="clear-image" data-remove-image="2" type="button">Quitar imagen 2</button></div>
+          <div class="image-preview-wrap"><img id="imagePreview3" alt="Vista previa imagen 3" /><button class="clear-image" data-remove-image="3" type="button">Quitar imagen 3</button></div>
+        </div>
+
+        <div class="admin-actions">
             <button class="btn primary" type="submit">Guardar producto</button>
             <button class="btn ghost" id="resetForm" type="button">Limpiar</button>
           </div>
@@ -224,9 +261,9 @@
       <span>Administrador liviano con respaldo JSON</span>
     </footer>
   </div>
-
-  <script src="storage.js"></script>
-  <script src="backup.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-api.js"></script>
   <script src="admin.js"></script>
 </body>
 </html>
