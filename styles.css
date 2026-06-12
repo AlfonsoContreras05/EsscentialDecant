@@ -2314,6 +2314,12 @@ footer strong {
   }
 }
 
+.catalog-hero::before,
+.catalog-page-hero::before,
+.catalog-hero-card::before {
+  opacity: 0.42 !important;
+  filter: blur(1px) saturate(1.05) contrast(1.05) !important;
+}
 
 @media (max-width: 768px) {
   .page-title.catalog-hero-card {
