@@ -133,7 +133,6 @@ function renderProductDetail(product) {
     <div class="detail-meta">
       <div><span>Perfil</span><strong>${product.tag || getProductProfileName(product)}</strong></div>
       <div><span>Stock</span><strong class="${product.stock === "Agotado" ? "danger" : "success"}">${product.stock || "Disponible"}</strong></div>
-      <div><span>Cobertura</span><strong>Santiago, Chile</strong></div>
     </div>
     <div class="detail-price-row">
       <span>Precio formato seleccionado</span>
