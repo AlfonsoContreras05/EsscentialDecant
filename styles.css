@@ -2321,6 +2321,14 @@ footer strong {
   filter: blur(1px) saturate(1.05) contrast(1.05) !important;
 }
 
+.catalog-hero::after,
+.catalog-page-hero::after,
+.catalog-hero-card::after {
+  background:
+    linear-gradient(90deg, rgba(6, 15, 22, 0.65), rgba(8, 8, 10, 0.58)),
+    radial-gradient(circle at center, rgba(232, 194, 111, 0.16), transparent 55%) !important;
+}
+
 @media (max-width: 768px) {
   .page-title.catalog-hero-card {
     min-height: 360px;
