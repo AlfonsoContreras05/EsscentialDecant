@@ -2448,6 +2448,62 @@ footer strong {
   object-position: center;
 }
 
+/* FIX inteligente: descripción corta en cards, completa en detalle */
+
+/* La card se ordena verticalmente */
+.product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+/* La zona visual mantiene altura estable */
+.product-card .product-visual {
+  height: 250px;
+  min-height: 250px;
+}
+
+/* La info se reparte mejor */
+.product-card .product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+/* En catálogo: respetamos saltos, pero cortamos el texto */
+.product-card .product-info p {
+  white-space: pre-line;
+  min-height: auto;
+  max-height: calc(1.55em * 4);
+  overflow: hidden;
+
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+/* El bloque de precio/botón se va hacia abajo */
+.product-card .product-bottom {
+  margin-top: auto;
+}
+
+/* En la ficha individual: descripción completa y con saltos */
+.detail-description {
+  white-space: pre-line;
+}
+
+/* Imágenes llenando mejor el marco interior */
+.product-card .product-image.visible,
+.related-visual img,
+.detail-thumbs img {
+  object-fit: cover;
+}
+
+.detail-main-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+}
+
 /* Responsive: mantener buena altura sin romper mobile */
 @media (max-width: 720px) {
   .product-visual {
