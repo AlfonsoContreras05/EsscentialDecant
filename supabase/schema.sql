@@ -3,7 +3,7 @@
 --
 -- IMPORTANTE:
 -- 1) Crea primero el usuario admin en Authentication → Users.
--- 2) Reemplaza decantessential@gmail.com por el correo real del administrador.
+-- 2) Reemplaza admin@essentialdecant.cl por el correo real del administrador.
 -- 3) Ejecuta todo este SQL.
 -- 4) Esta app no procesa pagos: solo catálogo, categorías, perfiles, portada e imágenes.
 
@@ -94,11 +94,11 @@ create policy "Public can read profiles" on public.profiles for select to anon, 
 create policy "Public can read products" on public.products for select to anon, authenticated using (true);
 create policy "Public can read site settings" on public.site_settings for select to anon, authenticated using (true);
 
--- Reemplaza decantessential@gmail.com por el correo real del admin.
-create policy "Admin can manage categories" on public.categories for all to authenticated using ((auth.jwt() ->> 'email') = 'decantessential@gmail.com') with check ((auth.jwt() ->> 'email') = 'decantessential@gmail.com');
-create policy "Admin can manage profiles" on public.profiles for all to authenticated using ((auth.jwt() ->> 'email') = 'decantessential@gmail.com') with check ((auth.jwt() ->> 'email') = 'decantessential@gmail.com');
-create policy "Admin can manage products" on public.products for all to authenticated using ((auth.jwt() ->> 'email') = 'decantessential@gmail.com') with check ((auth.jwt() ->> 'email') = 'decantessential@gmail.com');
-create policy "Admin can manage site settings" on public.site_settings for all to authenticated using ((auth.jwt() ->> 'email') = 'decantessential@gmail.com') with check ((auth.jwt() ->> 'email') = 'decantessential@gmail.com');
+-- Reemplaza admin@essentialdecant.cl por el correo real del admin.
+create policy "Admin can manage categories" on public.categories for all to authenticated using ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl') with check ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl');
+create policy "Admin can manage profiles" on public.profiles for all to authenticated using ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl') with check ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl');
+create policy "Admin can manage products" on public.products for all to authenticated using ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl') with check ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl');
+create policy "Admin can manage site settings" on public.site_settings for all to authenticated using ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl') with check ((auth.jwt() ->> 'email') = 'admin@essentialdecant.cl');
 
 insert into public.site_settings (id, hero_image_url) values (1, null) on conflict (id) do nothing;
 
@@ -110,9 +110,9 @@ drop policy if exists "Admin can update product images" on storage.objects;
 drop policy if exists "Admin can delete product images" on storage.objects;
 
 create policy "Public can view product images" on storage.objects for select to anon, authenticated using (bucket_id = 'product-images');
-create policy "Admin can upload product images" on storage.objects for insert to authenticated with check (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'decantessential@gmail.com');
-create policy "Admin can update product images" on storage.objects for update to authenticated using (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'decantessential@gmail.com') with check (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'decantessential@gmail.com');
-create policy "Admin can delete product images" on storage.objects for delete to authenticated using (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'decantessential@gmail.com');
+create policy "Admin can upload product images" on storage.objects for insert to authenticated with check (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'admin@essentialdecant.cl');
+create policy "Admin can update product images" on storage.objects for update to authenticated using (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'admin@essentialdecant.cl') with check (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'admin@essentialdecant.cl');
+create policy "Admin can delete product images" on storage.objects for delete to authenticated using (bucket_id = 'product-images' and (auth.jwt() ->> 'email') = 'admin@essentialdecant.cl');
 
 insert into public.categories (name, order_index) values ('Árabe', 1), ('Diseñador', 2) on conflict (name) do nothing;
 insert into public.profiles (name, order_index) values ('Fresco', 1), ('Dulce', 2), ('Cítrico', 3), ('Intenso', 4), ('Amaderado', 5), ('Especiado', 6), ('Acuático', 7) on conflict (name) do nothing;

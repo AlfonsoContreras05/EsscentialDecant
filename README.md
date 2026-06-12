@@ -68,3 +68,17 @@ Incluye mejoras públicas solicitadas por cliente:
 - Página de producto con galería, formatos 3ml/5ml/10ml, cantidad, carrito, consulta por WhatsApp y relacionados.
 
 IMPORTANTE: si aplicas esta versión sobre una carpeta ya configurada, conserva tu `supabase-config.js` actual para no perder URL y publishable key.
+
+## V5.3 Carrusel de destacados
+
+Incluye ajuste de portada solicitado por cliente:
+
+- Se elimina la imagen/tarjeta visual derecha del hero principal.
+- Se agrega carrusel de productos destacados entre el nav y la sección principal.
+- El carrusel usa productos marcados como destacados desde Supabase.
+- Si faltan destacados, toma productos con imagen como respaldo.
+- Click en la tarjeta central abre `product.html?id=...`.
+- Las tarjetas laterales cambian el foco del carrusel.
+- No requiere cambios en Supabase ni ejecutar SQL otra vez.
+
+IMPORTANTE: esta versión no debe reemplazar `supabase-config.js` si el proyecto ya está configurado en producción.
