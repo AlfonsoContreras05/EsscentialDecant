@@ -136,12 +136,12 @@ footer,
   flex: 0 0 auto;
 }
 
-.logo.logo-image {
+/* .logo.logo-image {
   background: transparent;
   box-shadow:
     0 0 0 5px rgba(232,194,111,.12),
     0 0 34px rgba(232,194,111,.20);
-}
+} */
 
 .logo.logo-image img {
   width: 100%;
