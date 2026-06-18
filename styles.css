@@ -701,7 +701,7 @@ main {
   grid-template-columns: 1fr 1fr;
   align-items: end;
   gap: 40px;
-  padding: 92px 0 44px;
+  padding: -15px 0 44px;
 }
 
 .split-section p,
@@ -2720,8 +2720,8 @@ footer strong {
 .featured-title-premium {
   font-family: Arial, Helvetica, sans-serif !important;
   font-style: normal !important;
-  font-weight: 950 !important;
-  font-size: clamp(58px, 8.6vw, 124px) !important;
+  font-weight: 450 !important;
+  font-size: clamp(15x, 8.6vw, 100x) !important;
   line-height: .86 !important;
   letter-spacing: -.078em !important;
   color: var(--text) !important;
