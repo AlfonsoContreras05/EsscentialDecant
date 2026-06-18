@@ -2720,7 +2720,7 @@ footer strong {
 .featured-title-premium {
   font-family: Arial, Helvetica, sans-serif !important;
   font-style: normal !important;
-  font-weight: 750 !important;
+  font-weight: 850 !important;
   font-size: clamp(15x, 8.6vw, 130x) !important;
   line-height: .86 !important;
   letter-spacing: -.078em !important;
