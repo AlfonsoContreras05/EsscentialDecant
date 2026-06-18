@@ -2614,3 +2614,181 @@ footer strong {
     height: 20px;
   }
 }
+
+
+/* =========================================================
+   V5.8 — Menú superior premium + título Destacados tipo hero
+   ========================================================= */
+
+/* Menú superior estilo botón/pill, coherente con "Ver catálogo" */
+.nav {
+  min-height: 74px;
+}
+
+.nav-links.nav-pill-menu,
+.nav-links {
+  gap: 10px;
+  padding: 6px;
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 999px;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(232,194,111,.08), transparent 5rem),
+    rgba(255,255,255,.045);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.06),
+    0 18px 44px rgba(0,0,0,.18);
+  backdrop-filter: blur(18px);
+}
+
+.nav-links.nav-pill-menu a,
+.nav-links a {
+  min-height: 42px;
+  padding: 0 17px;
+  border: 1px solid transparent;
+  border-radius: 999px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: rgba(255,250,240,.76);
+  font-weight: 900;
+  letter-spacing: -.015em;
+  line-height: 1;
+  transition:
+    color .2s ease,
+    background .2s ease,
+    border-color .2s ease,
+    transform .2s ease,
+    box-shadow .2s ease;
+}
+
+.nav-links.nav-pill-menu a:hover,
+.nav-links a:hover,
+.nav-links.nav-pill-menu a:focus-visible,
+.nav-links a:focus-visible {
+  color: #111;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  border-color: rgba(232,194,111,.66);
+  box-shadow: 0 14px 30px rgba(232,194,111,.16);
+  transform: translateY(-1px);
+  outline: none;
+}
+
+/* CTA del header más refinados y alineados con el menú */
+.nav-actions {
+  gap: 12px;
+}
+
+.nav-cta,
+.cart-button {
+  min-height: 52px;
+  padding: 0 24px;
+  border-radius: 999px;
+  border-color: rgba(255,255,255,.16);
+  background:
+    radial-gradient(circle at 50% 0%, rgba(255,255,255,.09), transparent 4rem),
+    rgba(255,255,255,.075);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.07),
+    0 18px 40px rgba(0,0,0,.18);
+}
+
+.nav-cta:hover,
+.cart-button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232,194,111,.38);
+  box-shadow:
+    inset 0 1px 0 rgba(255,255,255,.09),
+    0 22px 48px rgba(0,0,0,.24),
+    0 0 0 5px rgba(232,194,111,.06);
+}
+
+.nav-cta.admin-access {
+  color: #111;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  border-color: rgba(232,194,111,.72);
+  box-shadow:
+    0 16px 36px rgba(232,194,111,.16),
+    inset 0 1px 0 rgba(255,255,255,.26);
+}
+
+/* "Destacados" con el mismo peso visual del hero principal */
+.carousel-heading {
+  max-width: 1120px;
+}
+
+.carousel-heading h2,
+.featured-title-premium {
+  font-family: Arial, Helvetica, sans-serif !important;
+  font-style: normal !important;
+  font-weight: 950 !important;
+  font-size: clamp(58px, 8.6vw, 124px) !important;
+  line-height: .86 !important;
+  letter-spacing: -.078em !important;
+  color: var(--text) !important;
+  text-shadow: 0 16px 38px rgba(0,0,0,.48) !important;
+  background: none !important;
+  -webkit-text-fill-color: currentColor;
+}
+
+.carousel-heading .eyebrow {
+  margin-bottom: 18px;
+}
+
+.carousel-heading p {
+  max-width: 820px;
+  margin: 20px auto 0;
+  font-size: 18px;
+  line-height: 1.75;
+}
+
+/* Ajuste de respiración para que el carrusel no quede pegado al nav */
+.featured-carousel-section {
+  padding-top: clamp(56px, 7vw, 92px);
+}
+
+@media (max-width: 1120px) {
+  .nav {
+    align-items: flex-start;
+    height: auto;
+    min-height: 74px;
+    flex-wrap: wrap;
+  }
+
+  .nav-links.nav-pill-menu,
+  .nav-links {
+    order: 3;
+    width: 100%;
+    justify-content: center;
+    margin-top: 14px;
+  }
+
+  .nav-actions {
+    margin-left: auto;
+  }
+}
+
+@media (max-width: 900px) {
+  /* Respeta la regla original: el menú se oculta en móvil para no romper la cabecera */
+  .nav-links.nav-pill-menu,
+  .nav-links {
+    display: none;
+  }
+
+  .carousel-heading h2,
+  .featured-title-premium {
+    font-size: clamp(46px, 14vw, 76px) !important;
+    letter-spacing: -.07em !important;
+  }
+}
+
+@media (max-width: 580px) {
+  .nav-cta,
+  .cart-button {
+    min-height: 46px;
+    padding: 0 16px;
+  }
+
+  .carousel-heading p {
+    font-size: 16px;
+  }
+}
