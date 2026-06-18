@@ -220,8 +220,9 @@ function renderTaxonomyList(type) {
   list.innerHTML = "";
   items.forEach((item, index) => {
     const row = document.createElement("div");
+    const isUsed = usedValues.has(item.id);
     row.className = "taxonomy-row";
-    row.innerHTML = `<input value="${item.name}" aria-label="Editar ${item.name}"><div class="taxonomy-actions"><button type="button" data-action="save">Guardar</button><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === items.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="delete" ${usedValues.has(item.id) ? "disabled" : ""}>Eliminar</button></div>`;
+    row.innerHTML = `<input value="${item.name}" aria-label="Editar ${item.name}"><div class="taxonomy-actions"><button type="button" data-action="save">Guardar</button><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === items.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="delete" class="delete-taxonomy" title="${isUsed ? "Está en uso: cambia primero los productos asociados" : "Eliminar"}">Eliminar</button></div>`;
     row.querySelector('[data-action="save"]').addEventListener("click", () => renameTaxonomyItem(type, item.id, row.querySelector("input").value));
     row.querySelector('[data-action="up"]').addEventListener("click", () => moveTaxonomyItem(type, index, -1));
     row.querySelector('[data-action="down"]').addEventListener("click", () => moveTaxonomyItem(type, index, 1));
@@ -255,8 +256,18 @@ async function moveTaxonomyItem(type, index, direction) {
 }
 async function deleteTaxonomyItem(type, id) {
   const isCategory = type === "category";
-  const used = products.some((product) => isCategory ? product.category_id === id : product.profile_id === id);
-  if (used) { alert("No puedes eliminar una clasificación que está siendo usada por productos."); return; }
+  const usedProducts = products.filter((product) => isCategory ? product.category_id === id : product.profile_id === id);
+  if (usedProducts.length > 0) {
+    const sample = usedProducts.slice(0, 4).map((product) => `• ${product.name}`).join("
+");
+    alert(`No se puede eliminar porque está en uso por ${usedProducts.length} producto(s).
+
+Primero edita esos productos y asígnales otra ${isCategory ? "categoría" : "perfil olfativo"}.
+
+${sample}${usedProducts.length > 4 ? "
+• ..." : ""}`);
+    return;
+  }
   const confirmDelete = confirm("¿Eliminar esta clasificación?");
   if (!confirmDelete) return;
   try { if (type === "category") await deleteCategory(id); else await deleteProfile(id); await loadAdminData(); }

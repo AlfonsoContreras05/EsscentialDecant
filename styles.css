@@ -2448,62 +2448,6 @@ footer strong {
   object-position: center;
 }
 
-/* FIX inteligente: descripción corta en cards, completa en detalle */
-
-/* La card se ordena verticalmente */
-.product-card {
-  display: flex;
-  flex-direction: column;
-}
-
-/* La zona visual mantiene altura estable */
-.product-card .product-visual {
-  height: 250px;
-  min-height: 250px;
-}
-
-/* La info se reparte mejor */
-.product-card .product-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-}
-
-/* En catálogo: respetamos saltos, pero cortamos el texto */
-.product-card .product-info p {
-  white-space: pre-line;
-  min-height: auto;
-  max-height: calc(1.55em * 4);
-  overflow: hidden;
-
-  display: -webkit-box;
-  -webkit-line-clamp: 4;
-  -webkit-box-orient: vertical;
-}
-
-/* El bloque de precio/botón se va hacia abajo */
-.product-card .product-bottom {
-  margin-top: auto;
-}
-
-/* En la ficha individual: descripción completa y con saltos */
-.detail-description {
-  white-space: pre-line;
-}
-
-/* Imágenes llenando mejor el marco interior */
-.product-card .product-image.visible,
-.related-visual img,
-.detail-thumbs img {
-  object-fit: cover;
-}
-
-.detail-main-image img {
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
-}
-
 /* Responsive: mantener buena altura sin romper mobile */
 @media (max-width: 720px) {
   .product-visual {
@@ -2545,3 +2489,128 @@ footer strong {
   }
 }
 
+/* V5.7 — Ajustes comerciales: íconos RR.SS, logo, botones ml dorados y cards parejas */
+
+/* Zoom del logo principal sin agrandar el contenedor */
+.logo.logo-image img {
+  transform: scale(1.22);
+  transform-origin: center;
+  object-fit: cover;
+}
+
+.logo.big.logo-image img {
+  transform: scale(1.16);
+}
+
+/* Íconos reales en redes sociales */
+.footer-socials .social-icon {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+  background: rgba(232, 194, 111, .12);
+  border: 1px solid rgba(232, 194, 111, .28);
+  overflow: hidden;
+  flex: 0 0 auto;
+}
+
+.footer-socials .social-icon img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
+  display: block;
+}
+
+.wa-mark {
+  overflow: hidden;
+}
+
+.wa-mark img {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  display: block;
+}
+
+/* Botones de formato: mantener línea dorada en vez de azul */
+.size-picker button.selected,
+.detail-size-picker button.selected {
+  color: #111 !important;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2)) !important;
+  border-color: rgba(232, 194, 111, .76) !important;
+  box-shadow: 0 14px 30px rgba(232, 194, 111, .16);
+}
+
+.size-picker button:hover,
+.detail-size-picker button:hover {
+  border-color: rgba(232, 194, 111, .42);
+}
+
+/* Cards del catálogo: parejas aunque la descripción sea larga */
+.product-card {
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card .product-visual {
+  height: 250px;
+  min-height: 250px;
+  flex: 0 0 auto;
+}
+
+.product-card .product-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.product-card .product-info p {
+  white-space: pre-line;
+  min-height: auto;
+  max-height: calc(1.55em * 4);
+  overflow: hidden;
+  display: -webkit-box;
+  -webkit-line-clamp: 4;
+  -webkit-box-orient: vertical;
+}
+
+.product-card .size-picker {
+  margin-top: auto;
+}
+
+.product-card .product-bottom {
+  margin-top: 0;
+}
+
+.product-card .product-detail-link {
+  margin-top: 8px;
+}
+
+/* La ficha individual mantiene la descripción completa con saltos del admin */
+.detail-description {
+  white-space: pre-line;
+}
+
+/* Botón eliminar de categorías/perfiles: siempre visible y clickeable */
+.taxonomy-actions .delete-taxonomy {
+  color: var(--red);
+  opacity: 1;
+}
+
+.taxonomy-actions .delete-taxonomy:hover {
+  border-color: rgba(255,105,97,.36);
+  background: rgba(255,105,97,.10);
+}
+
+@media (max-width: 720px) {
+  .footer-socials .social-icon {
+    width: 28px;
+    height: 28px;
+  }
+
+  .footer-socials .social-icon img {
+    width: 20px;
+    height: 20px;
+  }
+}
