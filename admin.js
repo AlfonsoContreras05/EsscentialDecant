@@ -258,14 +258,16 @@ async function deleteTaxonomyItem(type, id) {
   const isCategory = type === "category";
   const usedProducts = products.filter((product) => isCategory ? product.category_id === id : product.profile_id === id);
   if (usedProducts.length > 0) {
-    const sample = usedProducts.slice(0, 4).map((product) => `• ${product.name}`).join("
-");
-    alert(`No se puede eliminar porque está en uso por ${usedProducts.length} producto(s).
+    const sample = usedProducts
+      .slice(0, 4)
+      .map((product) => `• ${product.name}`)
+      .join("\n");
 
-Primero edita esos productos y asígnales otra ${isCategory ? "categoría" : "perfil olfativo"}.
-
-${sample}${usedProducts.length > 4 ? "
-• ..." : ""}`);
+    alert(
+      `No se puede eliminar porque está en uso por ${usedProducts.length} producto(s).` +
+      `\n\nPrimero edita esos productos y asígnales otra ${isCategory ? "categoría" : "perfil olfativo"}.` +
+      `\n\n${sample}${usedProducts.length > 4 ? "\n• ..." : ""}`
+    );
     return;
   }
   const confirmDelete = confirm("¿Eliminar esta clasificación?");
