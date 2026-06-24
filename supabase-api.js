@@ -243,6 +243,60 @@ async function fetchPacks() {
   return (data || []).map(normalizePack);
 }
 
+
+async function fetchPackById(id) {
+  requireSupabaseConfig();
+  const { data, error } = await supabaseClient
+    .from("packs")
+    .select(`
+      *,
+      items:pack_items(
+        id,
+        pack_id,
+        product_id,
+        size_ml,
+        quantity,
+        order_index,
+        product:products(
+          id,
+          name,
+          brand,
+          tag,
+          description,
+          price_3ml,
+          price_5ml,
+          price_10ml,
+          stock,
+          featured,
+          is_active,
+          discount_percent,
+          image_url_1,
+          image_url_2,
+          image_url_3,
+          category:categories(id, name, order_index),
+          profile:profiles(id, name, order_index)
+        )
+      )
+    `)
+    .eq("id", id)
+    .maybeSingle();
+  if (error) throw error;
+  return data ? normalizePack(data) : null;
+}
+
+function getPackImages(pack) {
+  const ownImage = pack?.image_url ? [pack.image_url] : [];
+  const itemImages = (pack?.items || [])
+    .map((item) => item.product)
+    .filter(Boolean)
+    .flatMap((product) => getProductImages(product));
+  return [...ownImage, ...itemImages].filter(Boolean);
+}
+
+function getPrimaryPackImage(pack) {
+  return getPackImages(pack)[0] || null;
+}
+
 function normalizePack(pack) {
   const items = Array.isArray(pack.items) ? [...pack.items] : [];
   items.sort((a, b) => Number(a.order_index || 999) - Number(b.order_index || 999));
@@ -277,6 +331,7 @@ async function savePack(pack) {
     price: Number(pack.price || 0),
     is_active: pack.is_active !== false,
     featured: Boolean(pack.featured),
+    image_url: pack.image_url || null,
     order_index: Number(pack.order_index || 999)
   };
 
@@ -334,6 +389,7 @@ async function uploadImageToBucket(file, folder, namePrefix = "imagen") {
 }
 async function uploadProductImage(file, productName, slot) { return uploadImageToBucket(file, "productos", `${productName || "producto"}-${slot}`); }
 async function uploadHeroImage(file) { return uploadImageToBucket(file, "sitio", "portada-landing"); }
+async function uploadPackImage(file, packName) { return uploadImageToBucket(file, "packs", `${packName || "pack"}`); }
 
 function getProductBasePrice(product, size) {
   if (size === "3") return Number(product.price_3ml || 0);

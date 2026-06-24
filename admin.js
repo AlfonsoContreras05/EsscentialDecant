@@ -31,6 +31,9 @@ const packSizeSelect = document.querySelector("#packSizeSelect");
 const packQuantityInput = document.querySelector("#packQuantityInput");
 const addPackItemButton = document.querySelector("#addPackItem");
 const packItemsDraftNode = document.querySelector("#packItemsDraft");
+const packImageInput = document.querySelector('[name="packImage"]');
+const packImagePreview = document.querySelector("#packImagePreview");
+const removePackImageButton = document.querySelector("#removePackImage");
 
 let products = [];
 let packs = [];
@@ -42,9 +45,36 @@ let currentImages = { 1: "", 2: "", 3: "" };
 let selectedImageBlobs = { 1: null, 2: null, 3: null };
 let currentHeroImage = "";
 let selectedHeroBlob = null;
+let currentPackImage = "";
+let selectedPackImageBlob = null;
 
-function showAdmin() { loginScreen.classList.add("hidden"); adminApp.classList.remove("hidden"); }
+function showAdmin() { loginScreen.classList.add("hidden"); adminApp.classList.remove("hidden"); setupAdminCollapsibles(); }
 function showLogin() { loginScreen.classList.remove("hidden"); adminApp.classList.add("hidden"); }
+
+function setupAdminCollapsibles() {
+  const sections = document.querySelectorAll(
+    ".admin-tools-panel, .taxonomy-panel, .visible-admin, .pack-admin-panel, .pack-list-section, .admin-list-section:not(.pack-list-section)"
+  );
+
+  sections.forEach((section) => {
+    if (section.dataset.collapsibleReady === "true") return;
+    const title = section.querySelector("h2")?.textContent?.trim() || "Sección";
+    const eyebrow = section.querySelector(".eyebrow")?.textContent?.trim() || "Panel";
+    const button = document.createElement("button");
+    button.type = "button";
+    button.className = "section-collapse-toggle";
+    button.setAttribute("aria-expanded", "true");
+    button.innerHTML = `<span><small>${eyebrow}</small><strong>${title}</strong></span><b aria-hidden="true">⌄</b>`;
+    button.addEventListener("click", () => {
+      const collapsed = section.classList.toggle("is-collapsed");
+      button.setAttribute("aria-expanded", String(!collapsed));
+    });
+    section.classList.add("admin-collapsible");
+    section.prepend(button);
+    section.dataset.collapsibleReady = "true";
+  });
+}
+
 
 async function checkAuth() {
   try {
@@ -436,12 +466,30 @@ function renderPackProductOptions() {
   if (currentValue && [...packProductSelect.options].some((option) => option.value === currentValue)) packProductSelect.value = currentValue;
 }
 
+function setPackImagePreview(imageUrl) {
+  currentPackImage = imageUrl || "";
+  if (!packImagePreview || !removePackImageButton) return;
+  if (currentPackImage) {
+    packImagePreview.src = currentPackImage;
+    packImagePreview.classList.add("visible");
+    removePackImageButton.classList.add("visible");
+  } else {
+    packImagePreview.removeAttribute("src");
+    packImagePreview.classList.remove("visible");
+    removePackImageButton.classList.remove("visible");
+  }
+}
+
 function resetPackForm() {
   if (!packForm) return;
   packForm.reset();
   packForm.elements.id.value = "";
   packForm.elements.isActive.checked = true;
   packFormTitle.textContent = "Diseñar pack";
+  currentPackImage = "";
+  selectedPackImageBlob = null;
+  if (packImageInput) packImageInput.value = "";
+  setPackImagePreview("");
   packItemsDraft = [];
   renderPackItemsDraft();
   renderPackProductOptions();
@@ -500,7 +548,7 @@ function renderAdminPacks() {
     article.className = "admin-product-card admin-pack-card";
     const active = isPackActive(pack);
     article.classList.toggle("inactive-product", !active);
-    const firstImage = (pack.items || []).map((item) => item.product).filter(Boolean).map(getPrimaryProductImage).find(Boolean);
+    const firstImage = getPrimaryPackImage(pack);
     const imageBlock = firstImage ? `<img src="${firstImage}" alt="${pack.name}">` : `<div class="admin-fake-bottle" style="--accent-solid:rgba(232,194,111,.85)"></div>`;
     article.innerHTML = `
       <div class="admin-product-img">${imageBlock}</div>
@@ -554,6 +602,9 @@ function editPack(id) {
   packForm.elements.description.value = pack.description || "";
   packForm.elements.isActive.checked = isPackActive(pack);
   packForm.elements.featured.checked = Boolean(pack.featured);
+  selectedPackImageBlob = null;
+  if (packImageInput) packImageInput.value = "";
+  setPackImagePreview(pack.image_url || "");
   packItemsDraft = (pack.items || []).map((item) => ({
     product_id: item.product_id,
     product: item.product,
@@ -582,6 +633,8 @@ packForm?.addEventListener("submit", async (event) => {
   if (!packItemsDraft.length) { alert("Agrega al menos un producto al pack."); return; }
   const existingPack = packs.find((pack) => pack.id === id);
   try {
+    let imageUrl = currentPackImage;
+    if (selectedPackImageBlob) imageUrl = await uploadPackImage(selectedPackImageBlob, name);
     await savePack({
       id: id || null,
       name,
@@ -590,6 +643,7 @@ packForm?.addEventListener("submit", async (event) => {
       price: Number(formData.get("price") || 0),
       is_active: formData.get("isActive") === "on",
       featured: formData.get("featured") === "on",
+      image_url: imageUrl || null,
       order_index: existingPack?.order_index || packs.length + 1,
       items: packItemsDraft
     });
@@ -598,6 +652,29 @@ packForm?.addEventListener("submit", async (event) => {
   } catch (error) {
     alert(`No se pudo guardar el pack: ${error.message}`);
   }
+});
+
+packImageInput?.addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 5 * 1024 * 1024) {
+    alert("La imagen pesa mucho. Intenta usar una menor a 5MB.");
+    packImageInput.value = "";
+    return;
+  }
+  try {
+    const { blob, preview } = await compressImage(file, 1400, 0.84);
+    selectedPackImageBlob = blob;
+    setPackImagePreview(preview);
+  } catch (error) {
+    alert(error.message);
+  }
+});
+
+removePackImageButton?.addEventListener("click", () => {
+  if (packImageInput) packImageInput.value = "";
+  selectedPackImageBlob = null;
+  setPackImagePreview("");
 });
 
 resetPackFormButton?.addEventListener("click", resetPackForm);

@@ -288,6 +288,17 @@
             <textarea name="description" rows="3" placeholder="Describe qué incluye y para quién está pensado."></textarea>
           </label>
 
+          <label>
+            Imagen del pack
+            <input name="packImage" type="file" accept="image/*" />
+            <small class="form-help">Opcional. Usa una imagen tipo banner o composición del pack.</small>
+          </label>
+
+          <div class="image-preview-wrap pack-preview-wrap">
+            <img id="packImagePreview" alt="Vista previa pack" />
+            <button class="clear-image" id="removePackImage" type="button">Quitar imagen del pack</button>
+          </div>
+
           <label class="checkbox-row">
             <input name="featured" type="checkbox" />
             Pack destacado
