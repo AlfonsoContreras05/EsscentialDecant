@@ -12,6 +12,24 @@ function formatPrice(value) {
   return new Intl.NumberFormat("es-CL", { style: "currency", currency: "CLP", maximumFractionDigits: 0 }).format(Number(value || 0));
 }
 
+function clampNumber(value, min, max) {
+  const number = Number(value || 0);
+  if (!Number.isFinite(number)) return min;
+  return Math.min(max, Math.max(min, Math.round(number)));
+}
+
+function getProductDiscountPercent(product) {
+  return clampNumber(product?.discount_percent, 0, 25);
+}
+
+function isProductOnOffer(product) {
+  return getProductDiscountPercent(product) > 0;
+}
+
+function isProductActive(product) {
+  return product?.is_active !== false;
+}
+
 function createSlug(text) {
   return String(text || "")
     .toLowerCase()
@@ -151,6 +169,8 @@ async function saveProduct(product) {
     price_10ml: Number(product.price_10ml || 0),
     stock: product.stock,
     featured: Boolean(product.featured),
+    is_active: product.is_active !== false,
+    discount_percent: clampNumber(product.discount_percent, 0, 25),
     order_index: Number(product.order_index || 999),
     image_url_1: product.image_url_1 || null,
     image_url_2: product.image_url_2 || null,
@@ -198,10 +218,16 @@ async function uploadImageToBucket(file, folder, namePrefix = "imagen") {
 async function uploadProductImage(file, productName, slot) { return uploadImageToBucket(file, "productos", `${productName || "producto"}-${slot}`); }
 async function uploadHeroImage(file) { return uploadImageToBucket(file, "sitio", "portada-landing"); }
 
-function getProductPrice(product, size) {
+function getProductBasePrice(product, size) {
   if (size === "3") return Number(product.price_3ml || 0);
   if (size === "5") return Number(product.price_5ml || 0);
   return Number(product.price_10ml || 0);
+}
+function getProductPrice(product, size) {
+  const basePrice = getProductBasePrice(product, size);
+  const discount = getProductDiscountPercent(product);
+  if (!discount) return basePrice;
+  return Math.max(0, Math.round(basePrice * (1 - discount / 100)));
 }
 function getProductCategoryName(product) { return product.category?.name || "Sin categoría"; }
 function getProductProfileName(product) { return product.profile?.name || "Sin perfil"; }

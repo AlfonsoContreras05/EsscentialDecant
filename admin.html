@@ -49,7 +49,6 @@
         <div class="nav-links">
           <a href="index.html">Inicio</a>
           <a href="catalogo.html">Ver catálogo</a>
-          
         </div>
 
         <button class="nav-cta danger" id="logoutButton" type="button">Salir</button>
@@ -127,7 +126,7 @@
           </article>
 
           <article class="taxonomy-card">
-            <h3>Marcas</h3>
+            <h3>Perfiles olfativos</h3>
             <form class="taxonomy-form" id="profileForm">
               <input name="name" placeholder="Ej: Amaderado, Especiado, Acuático..." />
               <button class="btn primary" type="submit">Agregar</button>
@@ -142,7 +141,7 @@
           <span class="eyebrow">Producto</span>
           <h2 id="formTitle">Agregar producto</h2>
           <p>
-            Las imágenes se comprimen antes de guardarse. Aun así, conviene usar fotos livianas para no saturar el navegador.
+            Puedes activar/apagar productos, marcar ofertas hasta 25%, destacar fragancias y administrar sus imágenes.
           </p>
 
           <div class="admin-note">
@@ -190,6 +189,18 @@
             </label>
           </div>
 
+          <div class="form-row">
+            <label>
+              Descuento oferta (%)
+              <input name="discountPercent" type="number" min="0" max="25" step="1" placeholder="0" />
+              <small class="form-help">Usa 0 para precio normal. Máximo recomendado: 25%.</small>
+            </label>
+            <label class="checkbox-row admin-switch-row">
+              <input name="isActive" type="checkbox" checked />
+              Producto activo / visible en catálogo
+            </label>
+          </div>
+
           <div class="form-row three">
             <label>
               Precio 3ml
@@ -214,16 +225,6 @@
             <input name="featured" type="checkbox" />
             Producto destacado
           </label>
-
-          <label>
-            Imagen del producto
-            <input name="image" type="file" accept="image/*" />
-          </label>
-
-          <div class="image-preview-wrap">
-            <img id="imagePreview" alt="Vista previa de imagen" />
-            <button class="clear-image" id="removeImage" type="button">Quitar imagen</button>
-          </div>
 
           <div class="product-images-admin">
           <label>Imagen 1<input name="image1" type="file" accept="image/*" /></label>
@@ -250,7 +251,7 @@
             <span class="eyebrow">Inventario</span>
             <h2>Productos cargados</h2>
           </div>
-          <p>Edita, elimina, ordena y destaca productos. Los cambios se reflejan en <strong>catalogo.html</strong>.</p>
+          <p>Edita, apaga, elimina, ordena y destaca productos. Los cambios se reflejan en <strong>catalogo.html</strong>.</p>
         </div>
 
         <div class="admin-product-list" id="adminProductList"></div>

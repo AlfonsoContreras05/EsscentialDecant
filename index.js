@@ -52,7 +52,7 @@ function uniqueById(products) {
 }
 
 function selectFeaturedProducts(products = []) {
-  const withImage = products.filter((product) => getCarouselImage(product));
+  const withImage = products.filter((product) => isProductActive(product)).filter((product) => getCarouselImage(product));
   const featured = withImage.filter((product) => product.featured);
   const ordered = uniqueById([...featured, ...withImage]).slice(0, 3);
 
@@ -89,7 +89,7 @@ function renderFeaturedCarousel(products) {
         <img src="${image}" alt="${name}" loading="lazy">
         <span class="featured-card-info">
           <span class="featured-card-text">
-            <span class="featured-card-kicker">${brand}</span>
+            <span class="featured-card-kicker">${isProductOnOffer(product) ? `Oferta -${getProductDiscountPercent(product)}%` : brand}</span>
             <strong>${name}</strong>
             <small>${profile}</small>
           </span>

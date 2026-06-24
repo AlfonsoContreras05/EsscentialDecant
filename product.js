@@ -33,6 +33,7 @@ function getDirectWhatsappLink(product, size, amount = 1) {
     `Marca: ${product.brand}`,
     `Formato: ${size}ml`,
     `Cantidad: ${amount}`,
+    `${isProductOnOffer(product) ? `Descuento aplicado: ${getProductDiscountPercent(product)}%` : ""}`,
     `Total estimado: ${formatPrice(price * amount)}`,
     "",
     "¿Me confirmas disponibilidad, forma de pago y entrega?"
@@ -54,8 +55,18 @@ function updateProductPrice() {
   const whatsappNode = productDetail.querySelector("#directWhatsapp");
   const subtotalNode = productDetail.querySelector("#detailSubtotal");
   if (!currentProduct) return;
+  const basePrice = getProductBasePrice(currentProduct, selectedSize);
   const unitPrice = getProductPrice(currentProduct, selectedSize);
-  if (priceNode) priceNode.textContent = formatPrice(unitPrice);
+  const discount = getProductDiscountPercent(currentProduct);
+  if (priceNode) {
+    if (discount > 0 && basePrice > unitPrice) {
+      priceNode.classList.add("detail-price-offer");
+      priceNode.innerHTML = `<span class="old-price">${formatPrice(basePrice)}</span><span class="new-price">${formatPrice(unitPrice)}</span>`;
+    } else {
+      priceNode.classList.remove("detail-price-offer");
+      priceNode.textContent = formatPrice(unitPrice);
+    }
+  }
   if (subtotalNode) subtotalNode.textContent = formatPrice(unitPrice * quantity);
   if (whatsappNode) whatsappNode.href = getDirectWhatsappLink(currentProduct, selectedSize, quantity);
 }
@@ -126,6 +137,7 @@ function renderProductDetail(product) {
       <span>${getProductCategoryName(product)}</span>
       <span>${getProductProfileName(product)}</span>
       ${product.featured ? "<span>★ Destacado</span>" : ""}
+      ${isProductOnOffer(product) ? `<span class="offer-detail-badge">Oferta -${getProductDiscountPercent(product)}%</span>` : ""}
     </div>
     <p class="detail-brand">${product.brand}</p>
     <h1>${product.name}</h1>
@@ -133,10 +145,11 @@ function renderProductDetail(product) {
     <div class="detail-meta">
       <div><span>Perfil</span><strong>${product.tag || getProductProfileName(product)}</strong></div>
       <div><span>Stock</span><strong class="${product.stock === "Agotado" ? "danger" : "success"}">${product.stock || "Disponible"}</strong></div>
+      <div><span>Cobertura</span><strong>Santiago, Chile</strong></div>
     </div>
     <div class="detail-price-row">
       <span>Precio formato seleccionado</span>
-      <strong id="detailPrice">${formatPrice(getProductPrice(product, selectedSize))}</strong>
+      <strong id="detailPrice"></strong>
     </div>
     <div class="detail-controls">
       <div>
@@ -187,6 +200,8 @@ function renderProductDetail(product) {
     });
   });
 
+  updateProductPrice();
+
   const addButton = productDetail.querySelector("#detailAddCart");
   if (product.stock === "Agotado") {
     addButton.disabled = true;
@@ -202,6 +217,7 @@ function renderProductDetail(product) {
 function renderRelatedProducts(product, allProducts) {
   const related = allProducts
     .filter((item) => item.id !== product.id)
+    .filter(isProductActive)
     .filter((item) => item.category_id === product.category_id || item.profile_id === product.profile_id)
     .slice(0, 4);
 
@@ -223,7 +239,7 @@ function renderRelatedProducts(product, allProducts) {
       <div>
         <span>${item.brand}</span>
         <strong>${item.name}</strong>
-        <small>${formatPrice(getProductPrice(item, "3"))} · 3ml</small>
+        <small>${isProductOnOffer(item) ? `Oferta -${getProductDiscountPercent(item)}% · ` : ""}${formatPrice(getProductPrice(item, "3"))} · 3ml</small>
       </div>
     `;
     relatedGrid.appendChild(card);
@@ -240,8 +256,8 @@ async function loadProductPage() {
 
   try {
     const [product, allProducts] = await Promise.all([fetchProductById(id), fetchProducts()]);
-    if (!product) {
-      renderMissingProduct("Puede que haya sido eliminado del catálogo.");
+    if (!product || !isProductActive(product)) {
+      renderMissingProduct("Puede que haya sido eliminado o apagado temporalmente del catálogo.");
       return;
     }
     renderProductDetail(product);

@@ -133,6 +133,8 @@ function resetProductImages() {
 function resetForm() {
   form.reset();
   form.elements.id.value = "";
+  form.elements.discountPercent.value = 0;
+  form.elements.isActive.checked = true;
   formTitle.textContent = "Agregar producto";
   resetProductImages();
   renderTaxonomySelects();
@@ -288,9 +290,14 @@ function renderAdminProducts() {
     const firstImage = getPrimaryProductImage(product);
     const imageBlock = firstImage ? `<img src="${firstImage}" alt="${product.name}">` : `<div class="admin-fake-bottle" style="--accent-solid:${color}"></div>`;
     const imageCount = getProductImages(product).length;
-    article.innerHTML = `<div class="admin-product-img">${imageBlock}</div><div class="admin-product-info"><strong>${product.featured ? "★ " : ""}${product.name}</strong><span>${product.brand} · ${product.tag}</span><small>${product.stock} · ${getProductCategoryName(product)} · ${getProductProfileName(product)} · ${imageCount}/3 imágenes · 3ml ${formatPrice(product.price_3ml)} · 5ml ${formatPrice(product.price_5ml)} · 10ml ${formatPrice(product.price_10ml)}</small></div><div class="admin-product-actions"><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === products.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="featured">${product.featured ? "Quitar destacado" : "Destacar"}</button><button type="button" data-action="edit">Editar</button><button type="button" data-action="delete">Eliminar</button></div>`;
+    const active = isProductActive(product);
+    const discount = getProductDiscountPercent(product);
+    article.classList.toggle("inactive-product", !active);
+    article.classList.toggle("offer-product", discount > 0);
+    article.innerHTML = `<div class="admin-product-img">${imageBlock}</div><div class="admin-product-info"><strong>${product.featured ? "★ " : ""}${product.name}</strong><span>${product.brand} · ${product.tag}</span><small>${active ? "Activo" : "Apagado"} · ${discount ? `Oferta ${discount}% · ` : ""}${product.stock} · ${getProductCategoryName(product)} · ${getProductProfileName(product)} · ${imageCount}/3 imágenes · 3ml ${formatPrice(product.price_3ml)} · 5ml ${formatPrice(product.price_5ml)} · 10ml ${formatPrice(product.price_10ml)}</small></div><div class="admin-product-actions"><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === products.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="active">${active ? "Apagar" : "Activar"}</button><button type="button" data-action="featured">${product.featured ? "Quitar destacado" : "Destacar"}</button><button type="button" data-action="edit">Editar</button><button type="button" data-action="delete">Eliminar</button></div>`;
     article.querySelector('[data-action="up"]').addEventListener("click", () => moveProduct(index, -1));
     article.querySelector('[data-action="down"]').addEventListener("click", () => moveProduct(index, 1));
+    article.querySelector('[data-action="active"]').addEventListener("click", () => toggleProductActive(product.id));
     article.querySelector('[data-action="featured"]').addEventListener("click", () => toggleFeatured(product.id));
     article.querySelector('[data-action="edit"]').addEventListener("click", () => editProduct(product.id));
     article.querySelector('[data-action="delete"]').addEventListener("click", () => removeProduct(product.id));
@@ -312,6 +319,13 @@ async function toggleFeatured(id) {
   try { await saveProduct({ ...product, featured: !product.featured }); await loadAdminData(); }
   catch (error) { alert(`No se pudo destacar: ${error.message}`); }
 }
+async function toggleProductActive(id) {
+  const product = products.find((item) => item.id === id);
+  if (!product) return;
+  const nextActive = !isProductActive(product);
+  try { await saveProduct({ ...product, is_active: nextActive }); await loadAdminData(); }
+  catch (error) { alert(`No se pudo ${nextActive ? "activar" : "apagar"} el producto: ${error.message}`); }
+}
 function editProduct(id) {
   const product = products.find((item) => item.id === id);
   if (!product) return;
@@ -323,6 +337,8 @@ function editProduct(id) {
   form.elements.profile_id.value = product.profile_id;
   form.elements.tag.value = product.tag;
   form.elements.stock.value = product.stock;
+  form.elements.discountPercent.value = getProductDiscountPercent(product);
+  form.elements.isActive.checked = isProductActive(product);
   form.elements.price3.value = product.price_3ml;
   form.elements.price5.value = product.price_5ml;
   form.elements.price10.value = product.price_10ml;
@@ -361,6 +377,8 @@ form.addEventListener("submit", async (event) => {
       tag: formData.get("tag").trim(),
       stock: formData.get("stock"),
       featured: formData.get("featured") === "on",
+      is_active: formData.get("isActive") === "on",
+      discount_percent: Number(formData.get("discountPercent") || 0),
       order_index: existingProduct?.order_index || products.length + 1,
       description: formData.get("description").trim(),
       price_3ml: Number(formData.get("price3")),

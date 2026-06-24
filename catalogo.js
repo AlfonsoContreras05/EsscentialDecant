@@ -9,6 +9,7 @@ const checkoutForm = document.querySelector("#checkoutForm");
 const searchInput = document.querySelector("#searchInput");
 const sortSelect = document.querySelector("#sortSelect");
 const filterList = document.querySelector("#filterList");
+const offersGrid = document.querySelector("#offersGrid");
 
 let activeFilter = { type: "all", value: "todos" };
 let cart = getCart();
@@ -23,8 +24,11 @@ function showCatalogError(message) {
 async function loadCatalogData() {
   productGrid.innerHTML = `<div class="empty-state"><strong>Cargando catálogo...</strong><span>Conectando con Supabase.</span></div>`;
   try {
-    [categories, profiles, products] = await Promise.all([fetchCategories(), fetchProfiles(), fetchProducts()]);
+    const allProductsResult = await Promise.all([fetchCategories(), fetchProfiles(), fetchProducts()]);
+    [categories, profiles] = allProductsResult;
+    products = allProductsResult[2].filter(isProductActive);
     renderFilters();
+    renderOffers();
     renderProducts();
   } catch (error) {
     console.error(error);
@@ -36,6 +40,7 @@ function renderFilters() {
   const filters = [
     { type: "all", value: "todos", label: "Todos" },
     { type: "featured", value: "destacados", label: "Destacados" },
+    { type: "offer", value: "ofertas", label: "Ofertas" },
     ...profiles.map((profile) => ({ type: "profile", value: profile.id, label: profile.name })),
     ...categories.map((category) => ({ type: "category", value: category.id, label: category.name }))
   ];
@@ -58,6 +63,7 @@ function renderFilters() {
 function productMatchesFilter(product) {
   if (activeFilter.type === "all") return true;
   if (activeFilter.type === "featured") return product.featured;
+  if (activeFilter.type === "offer") return isProductOnOffer(product);
   if (activeFilter.type === "category") return product.category_id === activeFilter.value;
   if (activeFilter.type === "profile") return product.profile_id === activeFilter.value;
   return true;
@@ -72,9 +78,56 @@ function getFilteredProducts() {
 
   if (sortSelect.value === "featured") filtered.sort((a, b) => Number(b.featured) - Number(a.featured) || Number(a.order_index) - Number(b.order_index));
   if (sortSelect.value === "name") filtered.sort((a, b) => a.name.localeCompare(b.name));
-  if (sortSelect.value === "price-low") filtered.sort((a, b) => Number(a.price_3ml) - Number(b.price_3ml));
-  if (sortSelect.value === "price-high") filtered.sort((a, b) => Number(b.price_3ml) - Number(a.price_3ml));
+  if (sortSelect.value === "price-low") filtered.sort((a, b) => getProductPrice(a, "3") - getProductPrice(b, "3"));
+  if (sortSelect.value === "price-high") filtered.sort((a, b) => getProductPrice(b, "3") - getProductPrice(a, "3"));
   return filtered;
+}
+
+function renderPriceNode(priceNode, product, size) {
+  const discount = getProductDiscountPercent(product);
+  const basePrice = getProductBasePrice(product, size);
+  const finalPrice = getProductPrice(product, size);
+  if (discount > 0 && basePrice > finalPrice) {
+    priceNode.classList.add("price-offer");
+    priceNode.innerHTML = `<span class="old-price">${formatPrice(basePrice)}</span><span class="new-price">${formatPrice(finalPrice)}</span>`;
+  } else {
+    priceNode.classList.remove("price-offer");
+    priceNode.textContent = formatPrice(finalPrice);
+  }
+}
+
+function renderOffers() {
+  if (!offersGrid) return;
+  const offers = products
+    .filter((product) => isProductOnOffer(product))
+    .sort((a, b) => getProductDiscountPercent(b) - getProductDiscountPercent(a) || Number(a.order_index) - Number(b.order_index))
+    .slice(0, 4);
+
+  offersGrid.innerHTML = "";
+  if (offers.length === 0) {
+    offersGrid.innerHTML = `<div class="offers-empty"><strong>Aún no hay ofertas activas.</strong><span>Cuando marques un descuento en el admin, aparecerá aquí automáticamente.</span></div>`;
+    return;
+  }
+
+  offers.forEach((product) => {
+    const image = getPrimaryProductImage(product);
+    const discount = getProductDiscountPercent(product);
+    const card = document.createElement("a");
+    card.className = "offer-card";
+    card.href = getProductDetailUrl(product);
+    card.innerHTML = `
+      <span class="offer-badge">-${discount}%</span>
+      <div class="offer-visual">
+        ${image ? `<img src="${image}" alt="${product.name}" loading="lazy">` : `<div class="perfume-bottle product-bottle"><div class="cap"></div><div class="label">${product.brand}</div></div>`}
+      </div>
+      <div class="offer-info">
+        <span>${product.brand}</span>
+        <strong>${product.name}</strong>
+        <small>${getProductProfileName(product)} · desde ${formatPrice(getProductPrice(product, "3"))}</small>
+      </div>
+    `;
+    offersGrid.appendChild(card);
+  });
 }
 
 function renderProductGallery(product, productImage, gallery) {
@@ -142,6 +195,7 @@ function renderProducts() {
     card.style.setProperty("--accent-solid", color);
     bottle.style.setProperty("--accent-solid", color);
     if (product.featured) card.classList.add("featured");
+    if (isProductOnOffer(product)) card.classList.add("product-offer");
     card.setAttribute("role", "link");
     card.setAttribute("tabindex", "0");
     card.setAttribute("aria-label", `Ver detalle de ${product.name}`);
@@ -156,12 +210,12 @@ function renderProducts() {
     }
 
     label.textContent = product.brand;
-    tag.textContent = product.featured ? `★ ${product.tag}` : product.tag;
+    tag.textContent = isProductOnOffer(product) ? `-${getProductDiscountPercent(product)}% · ${product.tag}` : (product.featured ? `★ ${product.tag}` : product.tag);
     stock.textContent = product.stock || "Disponible";
     stock.classList.toggle("sold-out", product.stock === "Agotado");
     title.textContent = product.name;
     description.textContent = product.description;
-    price.textContent = formatPrice(getProductPrice(product, selectedSize));
+    renderPriceNode(price, product, selectedSize);
     detailLink.href = getProductDetailUrl(product);
 
     sizeButtons.forEach((button) => {
@@ -170,7 +224,7 @@ function renderProducts() {
         selectedSize = button.dataset.size;
         sizeButtons.forEach((currentButton) => currentButton.classList.remove("selected"));
         button.classList.add("selected");
-        price.textContent = formatPrice(getProductPrice(product, selectedSize));
+        renderPriceNode(price, product, selectedSize);
     detailLink.href = getProductDetailUrl(product);
       });
     });
