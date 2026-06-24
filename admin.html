@@ -245,6 +245,96 @@
         </form>
       </section>
 
+
+      <section class="admin-panel pack-admin-panel" id="packAdminPanel">
+        <div class="admin-copy">
+          <span class="eyebrow">Packs y promociones</span>
+          <h2 id="packFormTitle">Diseñar pack</h2>
+          <p>
+            Arma packs con productos existentes del catálogo. Ejemplo: 3 fragancias de 5ml + 2 de 10ml por un precio especial.
+          </p>
+          <div class="admin-note">
+            Los packs activos aparecen en la página <code>promociones.html</code>. Si apagas un pack, queda guardado pero no se muestra al cliente.
+          </div>
+        </div>
+
+        <form class="admin-form" id="packForm">
+          <input type="hidden" name="id" />
+
+          <div class="form-row">
+            <label>
+              Nombre del pack
+              <input required name="name" placeholder="Ej: Pack descubrimiento Hawas" />
+            </label>
+            <label>
+              Etiqueta
+              <input name="tag" placeholder="Ej: Oferta · Frescos" />
+            </label>
+          </div>
+
+          <div class="form-row">
+            <label>
+              Precio pack
+              <input required name="price" type="number" min="0" placeholder="19990" />
+            </label>
+            <label class="checkbox-row admin-switch-row">
+              <input name="isActive" type="checkbox" checked />
+              Pack activo / visible
+            </label>
+          </div>
+
+          <label>
+            Descripción del pack
+            <textarea name="description" rows="3" placeholder="Describe qué incluye y para quién está pensado."></textarea>
+          </label>
+
+          <label class="checkbox-row">
+            <input name="featured" type="checkbox" />
+            Pack destacado
+          </label>
+
+          <div class="pack-item-builder">
+            <h3>Productos del pack</h3>
+            <div class="pack-item-row">
+              <label>
+                Producto
+                <select id="packProductSelect"></select>
+              </label>
+              <label>
+                Formato
+                <select id="packSizeSelect">
+                  <option value="3">3ml</option>
+                  <option value="5" selected>5ml</option>
+                  <option value="10">10ml</option>
+                </select>
+              </label>
+              <label>
+                Cantidad
+                <input id="packQuantityInput" type="number" min="1" value="1" />
+              </label>
+              <button class="btn ghost" id="addPackItem" type="button">Agregar al pack</button>
+            </div>
+            <div class="pack-items-list" id="packItemsDraft"></div>
+          </div>
+
+          <div class="admin-actions">
+            <button class="btn primary" type="submit">Guardar pack</button>
+            <button class="btn ghost" id="resetPackForm" type="button">Limpiar pack</button>
+          </div>
+        </form>
+      </section>
+
+      <section class="admin-list-section pack-list-section">
+        <div class="section-head">
+          <div>
+            <span class="eyebrow">Packs publicados</span>
+            <h2>Packs cargados</h2>
+          </div>
+          <p>Edita, apaga, elimina y ordena los packs. Se muestran en promociones.html.</p>
+        </div>
+        <div class="admin-product-list" id="adminPackList"></div>
+      </section>
+
       <section class="admin-list-section">
         <div class="section-head">
           <div>

@@ -3121,3 +3121,398 @@ footer strong {
     margin-top: 14px;
   }
 }
+
+/* Essential Decant V6.0 — Packs admin, promociones separadas, filtros compactos y paginación */
+.home-banner-slot {
+  width: min(1320px, calc(100% - 24px));
+  margin: clamp(34px, 5vw, 58px) auto clamp(10px, 3vw, 22px);
+  min-height: clamp(118px, 16vw, 190px);
+  border-radius: clamp(24px, 3vw, 34px);
+  border: 1px solid rgba(255,255,255,.13);
+  overflow: hidden;
+  position: relative;
+  display: grid;
+  place-items: center;
+  background:
+    linear-gradient(90deg, rgba(7,10,15,.82), rgba(7,10,15,.36), rgba(7,10,15,.82)),
+    radial-gradient(circle at 20% 20%, rgba(86,200,255,.18), transparent 24rem),
+    radial-gradient(circle at 82% 40%, rgba(232,194,111,.22), transparent 26rem),
+    rgba(255,255,255,.055);
+  box-shadow: 0 26px 70px rgba(0,0,0,.22);
+}
+
+.home-banner-slot::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  background-image: linear-gradient(rgba(255,255,255,.045) 1px, transparent 1px), linear-gradient(90deg, rgba(255,255,255,.035) 1px, transparent 1px);
+  background-size: 38px 38px;
+  opacity: .24;
+}
+
+.home-banner-inner {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+  display: grid;
+  gap: 8px;
+  padding: 24px;
+}
+
+.home-banner-inner strong {
+  font-size: clamp(24px, 4vw, 52px);
+  line-height: .95;
+  letter-spacing: -.055em;
+}
+
+.home-banner-inner small {
+  color: var(--muted);
+  font-weight: 800;
+}
+
+/* Destacados un poco más pequeño y más respirado */
+.carousel-heading h2,
+.featured-title-premium {
+  font-size: clamp(48px, 7.2vw, 104px) !important;
+  letter-spacing: -.072em !important;
+}
+
+/* Packs portada: recuadro grande arriba, 4 recuadros debajo */
+.packs {
+  grid-template-columns: 1fr !important;
+  gap: 20px;
+  padding: 86px 0;
+}
+
+.pack-copy {
+  width: 100%;
+  min-height: 260px;
+  display: grid;
+  align-content: center;
+  justify-items: start;
+}
+
+.pack-copy h2 {
+  max-width: 980px;
+}
+
+.pack-copy p {
+  max-width: 780px;
+}
+
+.pack-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+}
+
+.pack-grid article {
+  min-height: 190px;
+}
+
+/* Quitar definitivamente numeración 01/02/03 */
+.format-grid article > span {
+  display: none !important;
+}
+
+.format-grid h3 {
+  margin-top: 0;
+}
+
+/* Acceso admin footer siempre usable */
+.site-footer {
+  padding-right: clamp(18px, 5vw, 76px);
+  padding-bottom: 84px;
+  align-items: center;
+}
+
+.footer-admin-link {
+  position: relative;
+  z-index: 45;
+  margin-right: clamp(0px, 13vw, 210px);
+}
+
+/* Filtros compactos con ver más */
+.filter-toggle {
+  margin: -16px 0 28px;
+  border: 1px solid rgba(232,194,111,.28);
+  color: var(--gold-2);
+  background: rgba(232,194,111,.075);
+  border-radius: 999px;
+  padding: 12px 18px;
+  font-weight: 950;
+}
+
+.catalog-pagination {
+  margin-top: 34px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  flex-wrap: wrap;
+}
+
+.page-numbers {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.page-btn {
+  min-height: 42px;
+  min-width: 42px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  padding: 0 14px;
+  font-weight: 950;
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.page-btn:hover:not(:disabled),
+.page-btn.active {
+  color: #111;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  border-color: rgba(232,194,111,.72);
+  transform: translateY(-2px);
+}
+
+.page-btn:disabled {
+  opacity: .4;
+}
+
+.pagination-dots,
+.pagination-count {
+  color: var(--muted);
+  font-weight: 850;
+}
+
+.pagination-count {
+  width: 100%;
+  text-align: center;
+  font-size: 13px;
+}
+
+.section-actions {
+  display: flex;
+  justify-content: center;
+  margin-top: 24px;
+}
+
+/* Página promociones y packs */
+.promo-hero-card h1 {
+  max-width: 1180px;
+}
+
+.packs-page-section {
+  padding: clamp(30px, 5vw, 58px) 0 clamp(56px, 7vw, 96px);
+}
+
+.packs-page-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 18px;
+  margin-top: 28px;
+}
+
+.public-pack-card {
+  overflow: hidden;
+  border: 1px solid rgba(232,194,111,.28);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 20% 20%, rgba(232,194,111,.14), transparent 20rem),
+    rgba(255,255,255,.06);
+  box-shadow: 0 28px 80px rgba(0,0,0,.24);
+  display: grid;
+  grid-template-rows: 230px auto;
+}
+
+.public-pack-visual {
+  position: relative;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 45%, rgba(86,200,255,.16), transparent 13rem),
+    rgba(255,255,255,.04);
+}
+
+.public-pack-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.public-pack-info {
+  padding: 22px;
+  display: grid;
+  gap: 14px;
+}
+
+.public-pack-info h3 {
+  font-size: clamp(26px, 2.6vw, 38px);
+}
+
+.public-pack-info p {
+  white-space: pre-line;
+  line-height: 1.7;
+}
+
+.public-pack-info ul {
+  display: grid;
+  gap: 8px;
+  list-style: none;
+  color: var(--muted);
+}
+
+.public-pack-info li {
+  border: 1px solid rgba(255,255,255,.09);
+  background: rgba(0,0,0,.16);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.public-pack-info li strong,
+.public-pack-info li span {
+  color: var(--gold-2);
+}
+
+.public-pack-bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-top: 4px;
+}
+
+.public-pack-bottom > strong {
+  font-size: 28px;
+  color: var(--gold-2);
+}
+
+.offers-page-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+/* Admin packs */
+.pack-admin-panel {
+  margin-top: 34px;
+}
+
+.pack-item-builder {
+  border: 1px solid var(--line);
+  border-radius: 22px;
+  background: rgba(0,0,0,.16);
+  padding: 18px;
+  display: grid;
+  gap: 14px;
+}
+
+.pack-item-row {
+  display: grid;
+  grid-template-columns: minmax(220px, 1fr) minmax(110px, .35fr) minmax(110px, .35fr) auto;
+  gap: 12px;
+  align-items: end;
+}
+
+.pack-items-list {
+  display: grid;
+  gap: 10px;
+}
+
+.empty-pack-items,
+.pack-draft-row {
+  border: 1px solid var(--line);
+  border-radius: 16px;
+  background: rgba(255,255,255,.045);
+  padding: 12px;
+}
+
+.empty-pack-items {
+  color: var(--muted);
+}
+
+.pack-draft-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+}
+
+.pack-draft-row em {
+  color: var(--gold-2);
+  font-style: normal;
+  font-weight: 950;
+}
+
+.pack-draft-row div {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.pack-draft-row button {
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: rgba(255,255,255,.07);
+  color: var(--text);
+  padding: 8px 12px;
+  font-weight: 900;
+}
+
+.pack-draft-row button:last-child {
+  color: var(--red);
+}
+
+.admin-pack-card .admin-product-info small {
+  line-height: 1.5;
+}
+
+@media (max-width: 1180px) {
+  .pack-grid,
+  .packs-page-grid,
+  .offers-page-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .pack-item-row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+@media (max-width: 720px) {
+  .home-banner-slot {
+    min-height: 140px;
+  }
+
+  .pack-grid,
+  .packs-page-grid,
+  .offers-page-grid {
+    grid-template-columns: 1fr !important;
+  }
+
+  .pack-copy {
+    min-height: auto;
+    justify-items: stretch;
+  }
+
+  .pack-item-row {
+    grid-template-columns: 1fr;
+  }
+
+  .public-pack-bottom,
+  .pack-draft-row {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .footer-admin-link {
+    margin-right: 0;
+  }
+
+  .site-footer {
+    padding-bottom: 110px;
+  }
+}

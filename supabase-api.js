@@ -202,6 +202,123 @@ async function updateProfileOrder(id, orderIndex) {
   if (error) throw error;
 }
 
+
+async function fetchPacks() {
+  requireSupabaseConfig();
+  const { data, error } = await supabaseClient
+    .from("packs")
+    .select(`
+      *,
+      items:pack_items(
+        id,
+        pack_id,
+        product_id,
+        size_ml,
+        quantity,
+        order_index,
+        product:products(
+          id,
+          name,
+          brand,
+          tag,
+          description,
+          price_3ml,
+          price_5ml,
+          price_10ml,
+          stock,
+          featured,
+          is_active,
+          discount_percent,
+          image_url_1,
+          image_url_2,
+          image_url_3,
+          category:categories(id, name, order_index),
+          profile:profiles(id, name, order_index)
+        )
+      )
+    `)
+    .order("order_index", { ascending: true })
+    .order("name", { ascending: true });
+  if (error) throw error;
+  return (data || []).map(normalizePack);
+}
+
+function normalizePack(pack) {
+  const items = Array.isArray(pack.items) ? [...pack.items] : [];
+  items.sort((a, b) => Number(a.order_index || 999) - Number(b.order_index || 999));
+  return { ...pack, items };
+}
+
+function isPackActive(pack) {
+  return pack?.is_active !== false;
+}
+
+function getPackPrice(pack) {
+  return Number(pack?.price || 0);
+}
+
+function getPackItemsText(pack) {
+  const items = Array.isArray(pack?.items) ? pack.items : [];
+  if (!items.length) return "Selección a coordinar por WhatsApp";
+  return items
+    .map((item) => {
+      const productName = item.product ? `${item.product.brand} ${item.product.name}` : "Producto";
+      return `${Number(item.quantity || 1)}x ${productName} ${item.size_ml}ml`;
+    })
+    .join(" + ");
+}
+
+async function savePack(pack) {
+  requireSupabaseConfig();
+  const packPayload = {
+    name: pack.name,
+    tag: pack.tag || null,
+    description: pack.description || null,
+    price: Number(pack.price || 0),
+    is_active: pack.is_active !== false,
+    featured: Boolean(pack.featured),
+    order_index: Number(pack.order_index || 999)
+  };
+
+  let savedPack;
+  if (pack.id) {
+    const { data, error } = await supabaseClient.from("packs").update(packPayload).eq("id", pack.id).select().single();
+    if (error) throw error;
+    savedPack = data;
+    const { error: deleteItemsError } = await supabaseClient.from("pack_items").delete().eq("pack_id", pack.id);
+    if (deleteItemsError) throw deleteItemsError;
+  } else {
+    const { data, error } = await supabaseClient.from("packs").insert(packPayload).select().single();
+    if (error) throw error;
+    savedPack = data;
+  }
+
+  const items = Array.isArray(pack.items) ? pack.items : [];
+  if (items.length) {
+    const itemPayload = items.map((item, index) => ({
+      pack_id: savedPack.id,
+      product_id: item.product_id,
+      size_ml: Number(item.size_ml || 5),
+      quantity: Math.max(1, Number(item.quantity || 1)),
+      order_index: index + 1
+    }));
+    const { error: itemError } = await supabaseClient.from("pack_items").insert(itemPayload);
+    if (itemError) throw itemError;
+  }
+
+  return savedPack;
+}
+
+async function deletePack(id) {
+  const { error } = await supabaseClient.from("packs").delete().eq("id", id);
+  if (error) throw error;
+}
+
+async function updatePackOrder(id, orderIndex) {
+  const { error } = await supabaseClient.from("packs").update({ order_index: orderIndex }).eq("id", id);
+  if (error) throw error;
+}
+
 async function uploadImageToBucket(file, folder, namePrefix = "imagen") {
   requireSupabaseConfig();
   const filename = `${Date.now()}-${createSlug(namePrefix || "imagen")}.jpg`;

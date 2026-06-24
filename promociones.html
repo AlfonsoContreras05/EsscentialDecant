@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Promociones y packs | Essential Decant</title>
+  <meta name="description" content="Promociones, ofertas y packs Essential Decant. Selecciones de decants con pedido directo por WhatsApp." />
+  <link rel="icon" type="image/png" href="assets/favicon.png" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="noise"></div>
+
+  <header class="page-hero compact">
+    <nav class="nav">
+      <a class="brand" href="index.html" aria-label="Volver al inicio">
+        <div class="logo logo-image"><img src="assets/essential-decant-logo-nav.png" alt="Essential Decant"></div>
+        <div>
+          <strong>Essential Decant</strong>
+          <span>Promociones y packs</span>
+        </div>
+      </a>
+
+      <div class="nav-links nav-pill-menu">
+        <a href="index.html">Inicio</a>
+        <a href="#packsPage">Packs</a>
+        <a href="#ofertasPage">Ofertas</a>
+        <a href="catalogo.html">Catálogo</a>
+        <a href="#redes">Redes</a>
+      </div>
+
+      <div class="nav-actions">
+        <a class="nav-cta" href="catalogo.html">Ver catálogo</a>
+      </div>
+    </nav>
+
+    <section class="page-title catalog-hero-card promo-hero-card">
+      <span class="eyebrow">Promociones Essential Decant</span>
+      <h1>Packs, ofertas y selecciones especiales.</h1>
+      <p>
+        Revisa combinaciones armadas por el vendedor y productos con descuento activo.
+        Todo se confirma por WhatsApp antes del pago y la entrega.
+      </p>
+    </section>
+  </header>
+
+  <main>
+    <section class="packs-page-section" id="packsPage">
+      <div class="offers-head">
+        <span class="eyebrow">Packs armados</span>
+        <h2>Packs para descubrir mejor.</h2>
+        <p>
+          Selecciones diseñadas desde el administrador con productos existentes del catálogo.
+          El vendedor confirma stock real antes de cerrar el pedido.
+        </p>
+      </div>
+      <div class="packs-page-grid" id="packsPageGrid"></div>
+    </section>
+
+    <section class="offers-section offers-page-section" id="ofertasPage">
+      <div class="offers-head">
+        <span class="eyebrow">Ofertas activas</span>
+        <h2>Promociones y descuentos.</h2>
+        <p>
+          Productos con descuento publicado desde el administrador. Los valores son estimados y se validan por WhatsApp.
+        </p>
+      </div>
+      <div class="offers-grid offers-page-grid" id="offersPageGrid"></div>
+    </section>
+  </main>
+
+  <footer class="site-footer" id="redes">
+    <div class="footer-brand">
+      <strong>Essential Decant</strong>
+      <span>Perfumería · Decants · Santiago, Chile</span>
+    </div>
+    <div class="footer-socials" aria-label="Redes sociales Essential Decant">
+      <a href="https://www.instagram.com/essential_decant?utm_source=qr&igsh=MTJ3aWxwazNocW5xZQ==" target="_blank" rel="noopener" aria-label="Instagram Essential Decant"><span class="social-icon"><img src="assets/icons/instagram.svg" alt=""></span>Instagram</a>
+      <a href="https://www.facebook.com/share/1829tS2e8j/" target="_blank" rel="noopener" aria-label="Facebook Essential Decant"><span class="social-icon"><img src="assets/icons/facebook.svg" alt=""></span>Facebook</a>
+      <a href="https://www.tiktok.com/@essentialdecant?_r=1&_t=ZS-96KeBTZPW08" target="_blank" rel="noopener" aria-label="TikTok Essential Decant"><span class="social-icon"><img src="assets/icons/tiktok.svg" alt=""></span>TikTok</a>
+      <a href="https://wa.me/56934599409?text=Hola%20Essential%20Decant%20%F0%9F%91%8B%20quiero%20consultar%20por%20sus%20promociones%20y%20packs." target="_blank" rel="noopener" aria-label="WhatsApp Essential Decant"><span class="social-icon"><img src="assets/icons/whatsapp.svg" alt=""></span>WhatsApp</a>
+    </div>
+    <a class="footer-admin-link" href="admin.html" aria-label="Acceso administrador">Admin</a>
+  </footer>
+
+  <a class="floating-whatsapp" href="https://wa.me/56934599409?text=Hola%20Essential%20Decant%20%F0%9F%91%8B%20quiero%20consultar%20por%20sus%20promociones%20y%20packs." target="_blank" rel="noopener" aria-label="Consultar por WhatsApp">
+    <span class="wa-mark"><img src="assets/icons/whatsapp.svg" alt=""></span>
+    <span class="wa-copy"><strong>WhatsApp</strong><small>Consulta aquí</small></span>
+  </a>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="supabase-config.js"></script>
+  <script src="supabase-api.js"></script>
+  <script src="promociones.js"></script>
+</body>
+</html>
