@@ -32,30 +32,18 @@ function getPackWhatsappLink(pack) {
 }
 
 function renderPackCard(pack) {
-  const activeItems = (pack.items || []).filter((item) => !item.product || isProductActive(item.product));
   const packImage = getPrimaryPackImage(pack);
-  const previewItems = activeItems.slice(0, 4);
-  const itemsHtml = previewItems.length ? previewItems.map((item) => {
-    const product = item.product;
-    const productName = product ? `${escapeHTML(product.brand)} ${escapeHTML(product.name)}` : "Producto";
-    return `<li><strong>${Number(item.quantity || 1)}x</strong> ${productName} <span>${item.size_ml}ml</span></li>`;
-  }).join("") : `<li>Selección a coordinar por WhatsApp</li>`;
-  const remaining = activeItems.length > previewItems.length ? `<small class="pack-more-items">+${activeItems.length - previewItems.length} producto(s) más en el detalle</small>` : "";
-
   const card = document.createElement("a");
-  card.className = "public-pack-card public-pack-card-link";
+  card.className = "public-pack-card public-pack-card-link public-pack-card-clean";
   card.href = `pack.html?id=${encodeURIComponent(pack.id)}`;
   card.innerHTML = `
     <div class="public-pack-visual">
       ${packImage ? `<img src="${packImage}" alt="${escapeHTML(pack.name)}" loading="lazy">` : `<div class="perfume-bottle product-bottle"><div class="cap"></div><div class="label">PACK</div></div>`}
       ${pack.featured ? `<span class="offer-badge">Pack destacado</span>` : ""}
     </div>
-    <div class="public-pack-info">
+    <div class="public-pack-info public-pack-info-clean">
       <span class="product-tag">${escapeHTML(pack.tag || "Pack Essential")}</span>
       <h3>${escapeHTML(pack.name)}</h3>
-      <p>${escapeHTML(pack.description || "Pack armado por Essential Decant.")}</p>
-      <ul>${itemsHtml}</ul>
-      ${remaining}
       <div class="public-pack-bottom">
         <strong>${formatPrice(getPackPrice(pack))}</strong>
         <span class="btn primary">Ver detalle</span>
