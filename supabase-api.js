@@ -296,12 +296,10 @@ async function fetchPackById(id) {
 }
 
 function getPackImages(pack) {
-  const ownImage = pack?.image_url ? [pack.image_url] : [];
-  const itemImages = (pack?.items || [])
-    .map((item) => item.product)
-    .filter(Boolean)
-    .flatMap((product) => getProductImages(product));
-  return [...ownImage, ...itemImages].filter(Boolean);
+  // V6.5: los packs usan solo la imagen propia cargada desde el admin.
+  // No traemos imágenes de los perfumes incluidos, porque el detalle del pack
+  // ya muestra el contenido como texto y la imagen del pack debe ser protagonista.
+  return pack?.image_url ? [pack.image_url] : [];
 }
 
 function getPrimaryPackImage(pack) {
