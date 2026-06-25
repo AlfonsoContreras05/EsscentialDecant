@@ -104,6 +104,30 @@
         </form>
       </section>
 
+      <section class="admin-tools-panel banner-admin-panel">
+        <div>
+          <span class="eyebrow">Banner promocional</span>
+          <h2>Imagen entre menú y destacados</h2>
+          <p>
+            Sube el banner alargado de campaña. Si no hay imagen, la web muestra el espacio reservado con texto.
+          </p>
+        </div>
+
+        <form class="admin-form" id="bannerForm">
+          <label>
+            Imagen banner
+            <input id="bannerImage" name="bannerImage" type="file" accept="image/*" />
+          </label>
+
+          <div class="image-preview-wrap hero-preview-wrap banner-preview-wrap">
+            <img id="bannerImagePreview" alt="Vista previa banner promocional" />
+            <button class="clear-image" id="removeBannerImage" type="button">Quitar banner</button>
+          </div>
+
+          <button class="btn primary" type="submit">Guardar banner</button>
+        </form>
+      </section>
+
       <section class="taxonomy-panel">
         <div class="taxonomy-head">
           <div>

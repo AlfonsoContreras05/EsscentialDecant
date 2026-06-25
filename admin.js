@@ -10,6 +10,10 @@ const heroForm = document.querySelector("#heroForm");
 const heroImageInput = document.querySelector("#heroImage");
 const heroImagePreview = document.querySelector("#heroImagePreview");
 const removeHeroImageButton = document.querySelector("#removeHeroImage");
+const bannerForm = document.querySelector("#bannerForm");
+const bannerImageInput = document.querySelector("#bannerImage");
+const bannerImagePreview = document.querySelector("#bannerImagePreview");
+const removeBannerImageButton = document.querySelector("#removeBannerImage");
 
 const form = document.querySelector("#productForm");
 const formTitle = document.querySelector("#formTitle");
@@ -45,6 +49,8 @@ let currentImages = { 1: "", 2: "", 3: "" };
 let selectedImageBlobs = { 1: null, 2: null, 3: null };
 let currentHeroImage = "";
 let selectedHeroBlob = null;
+let currentBannerImage = "";
+let selectedBannerBlob = null;
 let currentPackImage = "";
 let selectedPackImageBlob = null;
 
@@ -110,6 +116,7 @@ async function loadAdminData() {
   try {
     [categories, profiles, products, siteSettings, packs] = await Promise.all([fetchCategories(), fetchProfiles(), fetchProducts(), fetchSiteSettings(), fetchPacks()]);
     renderHeroSettings();
+    renderBannerSettings();
     renderTaxonomies();
     renderAdminProducts();
     renderPackProductOptions();
@@ -233,6 +240,59 @@ removeHeroImageButton?.addEventListener("click", async () => {
     currentHeroImage = "";
     renderHeroSettings();
   } catch (error) { alert(`No se pudo quitar la imagen: ${error.message}`); }
+});
+
+
+function renderBannerSettings() {
+  currentBannerImage = siteSettings.home_banner_image_url || "";
+  selectedBannerBlob = null;
+  if (!bannerImagePreview || !removeBannerImageButton) return;
+  if (currentBannerImage) {
+    bannerImagePreview.src = currentBannerImage;
+    bannerImagePreview.classList.add("visible");
+    removeBannerImageButton.classList.add("visible");
+  } else {
+    bannerImagePreview.removeAttribute("src");
+    bannerImagePreview.classList.remove("visible");
+    removeBannerImageButton.classList.remove("visible");
+  }
+  if (bannerImageInput) bannerImageInput.value = "";
+}
+
+bannerImageInput?.addEventListener("change", async (event) => {
+  const file = event.target.files[0];
+  if (!file) return;
+  if (file.size > 6 * 1024 * 1024) { alert("La imagen pesa mucho. Intenta usar una menor a 6MB."); bannerImageInput.value = ""; return; }
+  try {
+    const { blob, preview } = await compressImage(file, 1800, 0.86);
+    selectedBannerBlob = blob;
+    bannerImagePreview.src = preview;
+    bannerImagePreview.classList.add("visible");
+    removeBannerImageButton.classList.add("visible");
+  } catch (error) { alert(error.message); }
+});
+
+bannerForm?.addEventListener("submit", async (event) => {
+  event.preventDefault();
+  try {
+    let bannerUrl = currentBannerImage;
+    if (selectedBannerBlob) bannerUrl = await uploadBannerImage(selectedBannerBlob);
+    siteSettings = await updateSiteSettings({ home_banner_image_url: bannerUrl || null });
+    selectedBannerBlob = null;
+    renderBannerSettings();
+    alert("Banner promocional guardado.");
+  } catch (error) { alert(`No se pudo guardar el banner: ${error.message}`); }
+});
+
+removeBannerImageButton?.addEventListener("click", async () => {
+  const confirmRemove = confirm("¿Quitar el banner promocional?");
+  if (!confirmRemove) return;
+  try {
+    siteSettings = await updateSiteSettings({ home_banner_image_url: null });
+    selectedBannerBlob = null;
+    currentBannerImage = "";
+    renderBannerSettings();
+  } catch (error) { alert(`No se pudo quitar el banner: ${error.message}`); }
 });
 
 function renderTaxonomySelects() {

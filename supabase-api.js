@@ -60,6 +60,17 @@ function getCart() {
 }
 function saveCart(cart) { localStorage.setItem("essentialDecantCartV51", JSON.stringify(cart)); }
 
+function getCartItemSubtitle(item) {
+  if (item?.type === "pack") return item.brand || "Pack Essential";
+  return `${item.brand || "Essential Decant"} · ${item.size}ml`;
+}
+
+function getCartLine(item, index) {
+  const total = formatPrice(Number(item.price || 0) * Number(item.quantity || 1));
+  if (item?.type === "pack") return `${index + 1}. ${item.name} - Pack x${item.quantity} = ${total}`;
+  return `${index + 1}. ${item.name} - ${item.size}ml x${item.quantity} = ${total}`;
+}
+
 async function getCurrentSession() {
   requireSupabaseConfig();
   const { data, error } = await supabaseClient.auth.getSession();
@@ -115,7 +126,7 @@ async function fetchSiteSettings() {
   requireSupabaseConfig();
   const { data, error } = await supabaseClient.from("site_settings").select("*").eq("id", 1).maybeSingle();
   if (error) throw error;
-  return data || { id: 1, hero_image_url: null };
+  return data || { id: 1, hero_image_url: null, home_banner_image_url: null };
 }
 async function updateSiteSettings(payload) {
   requireSupabaseConfig();
@@ -389,6 +400,7 @@ async function uploadImageToBucket(file, folder, namePrefix = "imagen") {
 }
 async function uploadProductImage(file, productName, slot) { return uploadImageToBucket(file, "productos", `${productName || "producto"}-${slot}`); }
 async function uploadHeroImage(file) { return uploadImageToBucket(file, "sitio", "portada-landing"); }
+async function uploadBannerImage(file) { return uploadImageToBucket(file, "sitio", "banner-promocional"); }
 async function uploadPackImage(file, packName) { return uploadImageToBucket(file, "packs", `${packName || "pack"}`); }
 
 function getProductBasePrice(product, size) {

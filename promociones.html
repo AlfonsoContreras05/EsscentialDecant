@@ -30,6 +30,7 @@
       </div>
 
       <div class="nav-actions">
+        <button class="cart-button" id="openCart" type="button" aria-label="Abrir carrito"><span>Carrito</span><strong id="cartCount">0</strong></button>
         <a class="nav-cta" href="catalogo.html">Ver catálogo</a>
       </div>
     </nav>
@@ -69,16 +70,56 @@
     </section>
   </main>
 
+  <aside class="cart-drawer" id="cartDrawer" aria-hidden="true">
+    <div class="cart-panel">
+      <div class="cart-head">
+        <div>
+          <span class="eyebrow">Tu pedido</span>
+          <h2>Carrito</h2>
+        </div>
+        <button class="close-cart" id="closeCart" type="button" aria-label="Cerrar carrito">×</button>
+      </div>
+
+      <div class="cart-items" id="cartItems"></div>
+
+      <form class="checkout" id="checkoutForm">
+        <label>
+          Nombre
+          <input name="customerName" placeholder="Tu nombre" />
+        </label>
+        <label>
+          Comuna / sector
+          <input name="customerZone" placeholder="Ej: San Miguel" />
+        </label>
+        <label>
+          Comentario
+          <textarea name="customerNote" rows="3" placeholder="Ej: quiero disponibilidad y forma de entrega"></textarea>
+        </label>
+      </form>
+
+      <div class="cart-total">
+        <span>Total estimado</span>
+        <strong id="cartTotal">$0</strong>
+      </div>
+
+      <a class="btn whatsapp disabled" id="sendWhatsapp" href="#" target="_blank" rel="noopener">
+        Enviar pedido por WhatsApp
+      </a>
+      <button class="clear-cart" id="clearCart" type="button">Vaciar carrito</button>
+    </div>
+  </aside>
+
   <footer class="site-footer" id="redes">
     <div class="footer-brand">
       <strong>Essential Decant</strong>
       <span>Perfumería · Decants · Santiago, Chile</span>
+      <span class="footer-dev">Desarrollado con ❤ por Orfheres</span>
     </div>
     <div class="footer-socials" aria-label="Redes sociales Essential Decant">
-      <a href="https://www.instagram.com/essential_decant?utm_source=qr&igsh=MTJ3aWxwazNocW5xZQ==" target="_blank" rel="noopener" aria-label="Instagram Essential Decant"><span class="social-icon"><img src="assets/icons/instagram.svg" alt=""></span>Instagram</a>
-      <a href="https://www.facebook.com/share/1829tS2e8j/" target="_blank" rel="noopener" aria-label="Facebook Essential Decant"><span class="social-icon"><img src="assets/icons/facebook.svg" alt=""></span>Facebook</a>
-      <a href="https://www.tiktok.com/@essentialdecant?_r=1&_t=ZS-96KeBTZPW08" target="_blank" rel="noopener" aria-label="TikTok Essential Decant"><span class="social-icon"><img src="assets/icons/tiktok.svg" alt=""></span>TikTok</a>
-      <a href="https://wa.me/56934599409?text=Hola%20Essential%20Decant%20%F0%9F%91%8B%20quiero%20consultar%20por%20sus%20promociones%20y%20packs." target="_blank" rel="noopener" aria-label="WhatsApp Essential Decant"><span class="social-icon"><img src="assets/icons/whatsapp.svg" alt=""></span>WhatsApp</a>
+      <a href="https://www.instagram.com/essential_decant?utm_source=qr&igsh=MTJ3aWxwazNocW5xZQ==" target="_blank" rel="noopener" aria-label="Instagram Essential Decant"><span class="social-icon"><img src="assets/icons/instagram.svg" alt=""></span></a>
+      <a href="https://www.facebook.com/share/1829tS2e8j/" target="_blank" rel="noopener" aria-label="Facebook Essential Decant"><span class="social-icon"><img src="assets/icons/facebook.svg" alt=""></span></a>
+      <a href="https://www.tiktok.com/@essentialdecant?_r=1&_t=ZS-96KeBTZPW08" target="_blank" rel="noopener" aria-label="TikTok Essential Decant"><span class="social-icon"><img src="assets/icons/tiktok.svg" alt=""></span></a>
+      <a href="https://wa.me/56934599409?text=Hola%20Essential%20Decant%20%F0%9F%91%8B%20quiero%20consultar%20por%20sus%20promociones%20y%20packs." target="_blank" rel="noopener" aria-label="WhatsApp Essential Decant"><span class="social-icon"><img src="assets/icons/whatsapp.svg" alt=""></span></a>
     </div>
     <a class="footer-admin-link" href="admin.html" aria-label="Acceso administrador">Admin</a>
   </footer>

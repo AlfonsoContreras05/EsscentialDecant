@@ -350,7 +350,7 @@ function renderCart() {
   cart.forEach((item) => {
     const article = document.createElement("article");
     article.className = "cart-item";
-    article.innerHTML = `<div class="cart-item-top"><div><strong>${item.name}</strong><br><small>${item.brand} · ${item.size}ml</small></div><strong>${formatPrice(Number(item.price) * item.quantity)}</strong></div><div class="cart-item-actions"><div class="qty-control"><button type="button" data-action="minus">−</button><strong>${item.quantity}</strong><button type="button" data-action="plus">+</button></div><button class="remove-item" type="button" data-action="remove">Quitar</button></div>`;
+    article.innerHTML = `<div class="cart-item-top"><div><strong>${item.name}</strong><br><small>${getCartItemSubtitle(item)}</small></div><strong>${formatPrice(Number(item.price) * item.quantity)}</strong></div><div class="cart-item-actions"><div class="qty-control"><button type="button" data-action="minus">−</button><strong>${item.quantity}</strong><button type="button" data-action="plus">+</button></div><button class="remove-item" type="button" data-action="remove">Quitar</button></div>`;
     article.querySelector('[data-action="minus"]').addEventListener("click", () => changeQuantity(item.key, -1));
     article.querySelector('[data-action="plus"]').addEventListener("click", () => changeQuantity(item.key, 1));
     article.querySelector('[data-action="remove"]').addEventListener("click", () => removeItem(item.key));
@@ -365,7 +365,7 @@ function updateWhatsappLink() {
   const customerName = formData.get("customerName")?.trim() || "Sin nombre indicado";
   const customerZone = formData.get("customerZone")?.trim() || "Sin comuna indicada";
   const customerNote = formData.get("customerNote")?.trim() || "Sin comentario adicional";
-  const productLines = cart.map((item, index) => `${index + 1}. ${item.name} - ${item.size}ml x${item.quantity} = ${formatPrice(Number(item.price) * item.quantity)}`);
+  const productLines = cart.map((item, index) => getCartLine(item, index));
   const message = ["Hola Essential Decant 👋", "Quiero consultar por este pedido:", "", ...productLines, "", `Total estimado: ${formatPrice(getTotal())}`, "", `Nombre: ${customerName}`, `Comuna/Sector: ${customerZone}`, `Comentario: ${customerNote}`, "", "¿Me confirmas disponibilidad, forma de pago y entrega?"].join("\n");
   sendWhatsapp.href = `https://wa.me/${SELLER_PHONE}?text=${encodeURIComponent(message)}`;
   sendWhatsapp.classList.remove("disabled");

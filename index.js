@@ -169,3 +169,30 @@ async function loadFeaturedCarousel() {
 }
 
 loadFeaturedCarousel();
+
+
+async function renderHomeBanner() {
+  const slot = document.querySelector("#homeBannerSlot");
+  const image = document.querySelector("#homeBannerImage");
+  const placeholder = document.querySelector("#homeBannerPlaceholder");
+  if (!slot || !image) return;
+  try {
+    const settings = await fetchSiteSettings();
+    const bannerUrl = settings?.home_banner_image_url || "";
+    if (bannerUrl) {
+      image.src = bannerUrl;
+      image.classList.add("visible");
+      slot.classList.add("has-banner-image");
+      placeholder?.classList.add("hidden");
+    } else {
+      image.removeAttribute("src");
+      image.classList.remove("visible");
+      slot.classList.remove("has-banner-image");
+      placeholder?.classList.remove("hidden");
+    }
+  } catch (error) {
+    console.warn("No se pudo cargar el banner promocional:", error.message);
+  }
+}
+
+renderHomeBanner();
