@@ -196,3 +196,43 @@ async function renderHomeBanner() {
 }
 
 renderHomeBanner();
+
+
+/* V6.6 — Packs reales en portada */
+function getPackSizesLabel(pack) {
+  const items = Array.isArray(pack?.items) ? pack.items : [];
+  const sizes = [...new Set(items.map((item) => Number(item.size_ml || 0)).filter(Boolean))].sort((a, b) => a - b);
+  return sizes.length ? sizes.map((size) => `${size}ml`).join(' · ') : 'Pack a coordinar';
+}
+
+function renderHomePackCard(pack) {
+  const url = `pack.html?id=${encodeURIComponent(pack.id)}`;
+  return `
+    <article class="home-pack-card ${pack.featured ? 'is-featured' : ''}">
+      <a href="${url}" aria-label="Ver pack ${escapeHTML(pack.name)}">
+        <span>${escapeHTML(pack.tag || 'Pack Essential')}</span>
+        <strong>${escapeHTML(pack.name || 'Pack Essential Decant')}</strong>
+        <small>${escapeHTML(getPackSizesLabel(pack))} · ${formatPrice(getPackPrice(pack))}</small>
+      </a>
+    </article>
+  `;
+}
+
+async function loadHomePacks() {
+  const container = document.querySelector('#homePacksGrid');
+  if (!container || typeof fetchPacks !== 'function') return;
+  try {
+    const packs = await fetchPacks();
+    const activePacks = packs
+      .filter(isPackActive)
+      .sort((a, b) => Number(b.featured) - Number(a.featured) || Number(a.order_index || 999) - Number(b.order_index || 999))
+      .slice(0, 4);
+
+    if (!activePacks.length) return;
+    container.innerHTML = activePacks.map(renderHomePackCard).join('');
+  } catch (error) {
+    console.warn('No se pudieron cargar packs en portada:', error.message);
+  }
+}
+
+loadHomePacks();

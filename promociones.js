@@ -1,5 +1,6 @@
 const packsPageGrid = document.querySelector("#packsPageGrid");
 const offersPageGrid = document.querySelector("#offersPageGrid");
+const packSizeFilters = document.querySelector("#packSizeFilters");
 const cartDrawer = document.querySelector("#cartDrawer");
 const cartItems = document.querySelector("#cartItems");
 const cartCount = document.querySelector("#cartCount");
@@ -7,6 +8,8 @@ const cartTotal = document.querySelector("#cartTotal");
 const sendWhatsapp = document.querySelector("#sendWhatsapp");
 const checkoutForm = document.querySelector("#checkoutForm");
 let cart = getCart();
+let allActivePacks = [];
+let currentPackSizeFilter = "all";
 
 function escapeHTML(value) {
   return String(value || "")
@@ -133,6 +136,36 @@ function renderPackCard(pack) {
   return card;
 }
 
+
+function packMatchesSize(pack, size) {
+  if (size === "all") return true;
+  const items = Array.isArray(pack?.items) ? pack.items : [];
+  return items.some((item) => Number(item.size_ml || 0) === Number(size));
+}
+
+function renderFilteredPacks() {
+  if (!packsPageGrid) return;
+  const visiblePacks = allActivePacks.filter((pack) => packMatchesSize(pack, currentPackSizeFilter));
+  packsPageGrid.innerHTML = "";
+  if (!visiblePacks.length) {
+    const label = currentPackSizeFilter === "all" ? "activos" : `con formato ${currentPackSizeFilter}ml`;
+    packsPageGrid.innerHTML = `<div class="offers-empty"><strong>No hay packs ${label}.</strong><span>Puedes crear o ajustar packs desde el admin.</span></div>`;
+    return;
+  }
+  visiblePacks.forEach((pack) => packsPageGrid.appendChild(renderPackCard(pack)));
+}
+
+function setupPackFilters() {
+  if (!packSizeFilters) return;
+  packSizeFilters.querySelectorAll("[data-pack-size]").forEach((button) => {
+    button.addEventListener("click", () => {
+      currentPackSizeFilter = button.dataset.packSize || "all";
+      packSizeFilters.querySelectorAll("[data-pack-size]").forEach((item) => item.classList.toggle("active", item === button));
+      renderFilteredPacks();
+    });
+  });
+}
+
 function renderOfferCard(product) {
   const image = getPrimaryProductImage(product);
   const discount = getProductDiscountPercent(product);
@@ -162,12 +195,8 @@ async function loadPromocionesPage() {
     const activePacks = packs.filter(isPackActive).sort((a, b) => Number(b.featured) - Number(a.featured) || Number(a.order_index) - Number(b.order_index));
     const activeOffers = products.filter(isProductActive).filter(isProductOnOffer).sort((a, b) => getProductDiscountPercent(b) - getProductDiscountPercent(a) || Number(a.order_index) - Number(b.order_index));
 
-    packsPageGrid.innerHTML = "";
-    if (!activePacks.length) {
-      packsPageGrid.innerHTML = `<div class="offers-empty"><strong>Aún no hay packs activos.</strong><span>Diseña un pack desde el admin para mostrarlo aquí.</span></div>`;
-    } else {
-      activePacks.forEach((pack) => packsPageGrid.appendChild(renderPackCard(pack)));
-    }
+    allActivePacks = activePacks;
+    renderFilteredPacks();
 
     offersPageGrid.innerHTML = "";
     if (!activeOffers.length) {
@@ -183,4 +212,5 @@ async function loadPromocionesPage() {
 }
 
 renderCart();
+setupPackFilters();
 loadPromocionesPage();

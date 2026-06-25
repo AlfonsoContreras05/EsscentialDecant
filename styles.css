@@ -4171,3 +4171,199 @@ body.cart-open .floating-whatsapp {
     width: 100%;
   }
 }
+
+
+/* ======================================================
+   Essential Decant V6.6 — Portada armónica + packs reales + filtros pack
+   ====================================================== */
+
+/* Texto formato decant más ordenado y respirado */
+.decant-story {
+  grid-template-columns: minmax(0, 1fr) minmax(320px, .82fr);
+  align-items: center;
+  gap: clamp(22px, 5vw, 82px);
+  padding: clamp(72px, 8vw, 118px) 0 clamp(46px, 6vw, 76px);
+}
+
+.decant-story h2 {
+  max-width: 880px;
+  font-size: clamp(44px, 7.1vw, 102px);
+  line-height: .88;
+  letter-spacing: -.075em;
+  text-wrap: balance;
+}
+
+.decant-story > p {
+  max-width: 720px;
+  justify-self: end;
+  padding: clamp(22px, 3vw, 34px);
+  border: 1px solid rgba(255,255,255,.11);
+  border-radius: 26px;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(232,194,111,.09), transparent 16rem),
+    rgba(255,255,255,.045);
+  box-shadow: 0 24px 70px rgba(0,0,0,.16);
+  color: rgba(232,238,248,.86);
+  font-size: clamp(17px, 1.35vw, 21px);
+  line-height: 1.8;
+}
+
+/* Destacados vuelve a tener el mismo carácter del hero principal */
+.carousel-heading h2.featured-title-premium,
+.featured-title-premium {
+  font-family: Arial, Helvetica, sans-serif;
+  font-style: normal;
+  font-weight: 950;
+  max-width: 1180px;
+  margin: 0 auto;
+  font-size: clamp(54px, 7.7vw, 102px);
+  line-height: .89;
+  letter-spacing: -.075em;
+  color: var(--text);
+  text-shadow: 0 18px 54px rgba(0,0,0,.34);
+}
+
+.carousel-heading p {
+  max-width: 820px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Packs portada: recuadro grande arriba + 4 packs reales abajo */
+.packs.packs-home-section {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 18px;
+  padding: clamp(74px, 8vw, 118px) 0;
+}
+
+.pack-copy.pack-copy-wide {
+  min-height: clamp(230px, 26vw, 330px);
+  display: grid;
+  align-content: center;
+  padding: clamp(30px, 5vw, 62px);
+  border-radius: clamp(28px, 4vw, 42px);
+  background:
+    radial-gradient(circle at 18% 18%, rgba(232,194,111,.18), transparent 22rem),
+    linear-gradient(135deg, rgba(255,255,255,.09), rgba(255,255,255,.035));
+}
+
+.pack-copy.pack-copy-wide h2 {
+  max-width: 980px;
+  font-size: clamp(42px, 6.4vw, 86px);
+  line-height: .9;
+}
+
+.pack-copy.pack-copy-wide p {
+  max-width: 720px;
+}
+
+.home-pack-grid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+.home-pack-grid article,
+.home-pack-card {
+  min-height: 190px;
+  padding: 26px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 16% 16%, rgba(232,194,111,.10), transparent 15rem),
+    rgba(255,255,255,.055);
+  transition: transform .2s ease, border-color .2s ease, box-shadow .2s ease;
+}
+
+.home-pack-grid article:hover,
+.home-pack-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(232,194,111,.38);
+  box-shadow: 0 26px 74px rgba(0,0,0,.24);
+}
+
+.home-pack-card a {
+  min-height: 100%;
+  color: inherit;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 22px;
+}
+
+.home-pack-grid small,
+.home-pack-card small {
+  color: var(--muted);
+  font-weight: 850;
+  line-height: 1.45;
+}
+
+.home-pack-card.is-featured span::after {
+  content: " · destacado";
+  color: var(--gold-2);
+}
+
+/* Filtros para packs por formato */
+.pack-filter-row {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+  margin: 26px auto 0;
+}
+
+.pack-filter-btn {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: rgba(255,255,255,.06);
+  border-radius: 999px;
+  padding: 13px 22px;
+  font-weight: 950;
+  box-shadow: 0 18px 42px rgba(0,0,0,.14);
+  transition: transform .2s ease, border-color .2s ease, background .2s ease;
+}
+
+.pack-filter-btn:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232,194,111,.42);
+}
+
+.pack-filter-btn.active {
+  color: #111;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  border-color: rgba(232,194,111,.72);
+}
+
+@media (max-width: 1100px) {
+  .decant-story {
+    grid-template-columns: 1fr;
+  }
+
+  .decant-story > p {
+    justify-self: stretch;
+  }
+
+  .home-pack-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 680px) {
+  .decant-story h2,
+  .featured-title-premium,
+  .carousel-heading h2.featured-title-premium {
+    font-size: clamp(42px, 15vw, 70px);
+  }
+
+  .home-pack-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .pack-filter-row {
+    justify-content: flex-start;
+  }
+
+  .pack-filter-btn {
+    flex: 1 1 auto;
+  }
+}
