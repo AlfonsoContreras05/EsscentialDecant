@@ -198,21 +198,22 @@ async function renderHomeBanner() {
 renderHomeBanner();
 
 
-/* V6.6 — Packs reales en portada */
-function getPackSizesLabel(pack) {
-  const items = Array.isArray(pack?.items) ? pack.items : [];
-  const sizes = [...new Set(items.map((item) => Number(item.size_ml || 0)).filter(Boolean))].sort((a, b) => a - b);
-  return sizes.length ? sizes.map((size) => `${size}ml`).join(' · ') : 'Pack a coordinar';
-}
-
+/* V6.7 — Packs reales en portada con imagen propia */
 function renderHomePackCard(pack) {
   const url = `pack.html?id=${encodeURIComponent(pack.id)}`;
+  const image = getPrimaryPackImage(pack);
+  const defaultSize = getDefaultPackSize(pack);
   return `
-    <article class="home-pack-card ${pack.featured ? 'is-featured' : ''}">
+    <article class="home-pack-card home-pack-card-image ${pack.featured ? 'is-featured' : ''}">
       <a href="${url}" aria-label="Ver pack ${escapeHTML(pack.name)}">
-        <span>${escapeHTML(pack.tag || 'Pack Essential')}</span>
-        <strong>${escapeHTML(pack.name || 'Pack Essential Decant')}</strong>
-        <small>${escapeHTML(getPackSizesLabel(pack))} · ${formatPrice(getPackPrice(pack))}</small>
+        <span class="home-pack-visual">
+          ${image ? `<img src="${image}" alt="${escapeHTML(pack.name)}" loading="lazy">` : `<i>PACK</i>`}
+        </span>
+        <span class="home-pack-content">
+          <span class="home-pack-tag">${escapeHTML(pack.tag || 'Pack Essential')}</span>
+          <strong>${escapeHTML(pack.name || 'Pack Essential Decant')}</strong>
+          <small>Desde ${defaultSize}ml · ${formatPrice(getPackPrice(pack, defaultSize))}</small>
+        </span>
       </a>
     </article>
   `;

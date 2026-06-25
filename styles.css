@@ -4367,3 +4367,172 @@ body.cart-open .floating-whatsapp {
     flex: 1 1 auto;
   }
 }
+
+/* Essential Decant V6.7 — Packs con imágenes y formatos propios */
+/* La portada ya no usa los bloques 3ml/5ml/10ml, así ganamos aire visual. */
+.hero-content-clean .hero-stats,
+.format-grid#formatos {
+  display: none !important;
+}
+
+.hero-content.hero-content-clean {
+  padding-bottom: clamp(44px, 5vw, 72px) !important;
+}
+
+/* Packs en portada: 4 cards reales con imagen propia del pack */
+.home-pack-grid {
+  align-items: stretch;
+}
+
+.home-pack-card.home-pack-card-image {
+  min-height: 320px;
+  padding: 0 !important;
+  overflow: hidden;
+}
+
+.home-pack-card.home-pack-card-image a {
+  min-height: 100%;
+  display: grid;
+  grid-template-rows: 170px 1fr;
+  gap: 0;
+}
+
+.home-pack-visual {
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 50% 40%, rgba(232,194,111,.12), transparent 14rem),
+    rgba(255,255,255,.045);
+}
+
+.home-pack-visual img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.home-pack-visual i {
+  color: var(--gold);
+  font-style: normal;
+  font-weight: 950;
+  letter-spacing: .18em;
+}
+
+.home-pack-content {
+  display: grid;
+  align-content: space-between;
+  gap: 14px;
+  padding: 22px 24px 24px;
+  min-height: 150px;
+}
+
+.home-pack-tag,
+.home-pack-card span:first-child:not(.home-pack-visual):not(.home-pack-content) {
+  color: var(--gold);
+  font-weight: 950;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+
+.home-pack-content strong {
+  line-height: 1.12;
+  text-wrap: balance;
+}
+
+.home-pack-content small {
+  color: var(--muted);
+  font-weight: 900;
+}
+
+/* Selector 3ml/5ml/10ml propio de cada pack */
+.pack-size-picker {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+  width: 100%;
+}
+
+.pack-size-picker button {
+  border: 1px solid var(--line);
+  color: var(--text);
+  background: rgba(255,255,255,.055);
+  border-radius: 16px;
+  padding: 12px 10px;
+  font-weight: 950;
+  transition: transform .2s ease, background .2s ease, border-color .2s ease;
+}
+
+.pack-size-picker button:hover {
+  transform: translateY(-2px);
+  border-color: rgba(232,194,111,.38);
+}
+
+.pack-size-picker button.selected {
+  color: #111;
+  background: linear-gradient(135deg, var(--gold), var(--gold-2));
+  border-color: rgba(232,194,111,.72);
+  box-shadow: 0 12px 28px rgba(232,194,111,.14);
+}
+
+.public-pack-size-area {
+  padding: 0 26px 18px;
+}
+
+.public-pack-card-clean .public-pack-info-clean {
+  padding-bottom: 16px;
+}
+
+.public-pack-bottom-actions {
+  padding-top: 18px;
+}
+
+.detail-pack-size-control {
+  margin: 22px 0 18px;
+}
+
+.detail-pack-size-picker {
+  max-width: 520px;
+}
+
+.pack-detail-item-textonly {
+  grid-template-columns: 1fr !important;
+}
+
+.pack-detail-item-textonly .pack-detail-item-img,
+.pack-detail-item-textonly em {
+  display: none !important;
+}
+
+.pack-single-image-gallery .detail-thumbs {
+  display: none !important;
+}
+
+/* Se elimina el filtro global de packs; cada pack maneja sus formatos. */
+.pack-filter-row {
+  display: none !important;
+}
+
+@media (max-width: 1100px) {
+  .home-pack-card.home-pack-card-image a {
+    grid-template-rows: 210px 1fr;
+  }
+}
+
+@media (max-width: 680px) {
+  .home-pack-card.home-pack-card-image {
+    min-height: 290px;
+  }
+
+  .home-pack-card.home-pack-card-image a {
+    grid-template-rows: 180px 1fr;
+  }
+
+  .public-pack-size-area,
+  .public-pack-bottom-actions {
+    padding-left: 18px;
+    padding-right: 18px;
+  }
+}

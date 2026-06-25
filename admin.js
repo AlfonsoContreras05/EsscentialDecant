@@ -31,7 +31,6 @@ const packFormTitle = document.querySelector("#packFormTitle");
 const resetPackFormButton = document.querySelector("#resetPackForm");
 const adminPackList = document.querySelector("#adminPackList");
 const packProductSelect = document.querySelector("#packProductSelect");
-const packSizeSelect = document.querySelector("#packSizeSelect");
 const packQuantityInput = document.querySelector("#packQuantityInput");
 const addPackItemButton = document.querySelector("#addPackItem");
 const packItemsDraftNode = document.querySelector("#packItemsDraft");
@@ -570,7 +569,7 @@ function renderPackItemsDraft() {
   packItemsDraft.forEach((item, index) => {
     const row = document.createElement("div");
     row.className = "pack-draft-row";
-    row.innerHTML = `<span><strong>${item.quantity}x</strong> ${getDraftProductName(item)} <em>${item.size_ml}ml</em></span><div><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === packItemsDraft.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="remove">Quitar</button></div>`;
+    row.innerHTML = `<span><strong>${item.quantity}x</strong> ${getDraftProductName(item)}</span><div><button type="button" data-action="up" ${index === 0 ? "disabled" : ""}>↑</button><button type="button" data-action="down" ${index === packItemsDraft.length - 1 ? "disabled" : ""}>↓</button><button type="button" data-action="remove">Quitar</button></div>`;
     row.querySelector('[data-action="remove"]').addEventListener("click", () => { packItemsDraft.splice(index, 1); renderPackItemsDraft(); });
     row.querySelector('[data-action="up"]').addEventListener("click", () => moveDraftPackItem(index, -1));
     row.querySelector('[data-action="down"]').addEventListener("click", () => moveDraftPackItem(index, 1));
@@ -591,8 +590,7 @@ addPackItemButton?.addEventListener("click", () => {
   if (!productId) { alert("Primero selecciona un producto para el pack."); return; }
   const product = products.find((item) => item.id === productId);
   const quantity = Math.max(1, Number(packQuantityInput?.value || 1));
-  const sizeMl = Number(packSizeSelect?.value || 5);
-  packItemsDraft.push({ product_id: productId, product, size_ml: sizeMl, quantity });
+  packItemsDraft.push({ product_id: productId, product, size_ml: 5, quantity });
   renderPackItemsDraft();
 });
 
@@ -614,7 +612,7 @@ function renderAdminPacks() {
       <div class="admin-product-img">${imageBlock}</div>
       <div class="admin-product-info">
         <strong>${pack.featured ? "★ " : ""}${pack.name}</strong>
-        <span>${pack.tag || "Pack"} · ${formatPrice(pack.price)}</span>
+        <span>${pack.tag || "Pack"} · 3ml ${formatPrice(getPackPrice(pack, "3"))} · 5ml ${formatPrice(getPackPrice(pack, "5"))} · 10ml ${formatPrice(getPackPrice(pack, "10"))}</span>
         <small>${active ? "Activo" : "Apagado"} · ${(pack.items || []).length} producto(s) · ${getPackItemsText(pack)}</small>
       </div>
       <div class="admin-product-actions">
@@ -658,7 +656,9 @@ function editPack(id) {
   packForm.elements.id.value = pack.id;
   packForm.elements.name.value = pack.name || "";
   packForm.elements.tag.value = pack.tag || "";
-  packForm.elements.price.value = pack.price || 0;
+  packForm.elements.price3.value = pack.price_3ml || pack.price || 0;
+  packForm.elements.price5.value = pack.price_5ml || pack.price || 0;
+  packForm.elements.price10.value = pack.price_10ml || pack.price || 0;
   packForm.elements.description.value = pack.description || "";
   packForm.elements.isActive.checked = isPackActive(pack);
   packForm.elements.featured.checked = Boolean(pack.featured);
@@ -691,6 +691,10 @@ packForm?.addEventListener("submit", async (event) => {
   const name = formData.get("name")?.trim();
   if (!name) { alert("El pack necesita un nombre."); return; }
   if (!packItemsDraft.length) { alert("Agrega al menos un producto al pack."); return; }
+  const price3 = Number(formData.get("price3") || 0);
+  const price5 = Number(formData.get("price5") || 0);
+  const price10 = Number(formData.get("price10") || 0);
+  if (!price3 && !price5 && !price10) { alert("Debes indicar al menos un precio para el pack: 3ml, 5ml o 10ml."); return; }
   const existingPack = packs.find((pack) => pack.id === id);
   try {
     let imageUrl = currentPackImage;
@@ -700,7 +704,10 @@ packForm?.addEventListener("submit", async (event) => {
       name,
       tag: formData.get("tag")?.trim(),
       description: formData.get("description")?.trim(),
-      price: Number(formData.get("price") || 0),
+      price_3ml: price3,
+      price_5ml: price5,
+      price_10ml: price10,
+      price: price5 || price3 || price10 || 0,
       is_active: formData.get("isActive") === "on",
       featured: formData.get("featured") === "on",
       image_url: imageUrl || null,

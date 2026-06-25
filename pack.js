@@ -7,6 +7,7 @@ const sendWhatsapp = document.querySelector("#sendWhatsapp");
 const checkoutForm = document.querySelector("#checkoutForm");
 let cart = getCart();
 let currentPack = null;
+let currentPackSize = "5";
 
 function escapeHTML(value) {
   return String(value || "")
@@ -25,21 +26,23 @@ function renderMissingPack(message = "No encontramos este pack.") {
   packDetail.innerHTML = `<div class="empty-state"><strong>Pack no disponible.</strong><span>${escapeHTML(message)}</span><a class="btn primary" href="promociones.html">Volver a promociones</a></div>`;
 }
 
-function getPackWhatsappLink(pack) {
+function getPackWhatsappLink(pack, size = null) {
+  const selectedSize = String(size || currentPackSize || getDefaultPackSize(pack));
   const lines = [
     "Hola Essential Decant 👋",
     `Quiero consultar por el pack: ${pack.name}`,
     pack.tag ? `Tipo: ${pack.tag}` : "",
+    `Formato elegido: ${selectedSize}ml`,
     pack.description ? `Detalle: ${pack.description}` : "",
     "",
     "Incluye:",
     ...(Array.isArray(pack.items) && pack.items.length ? pack.items.map((item, index) => {
       const product = item.product;
       const productName = product ? `${product.brand} ${product.name}` : "Producto";
-      return `${index + 1}. ${item.quantity}x ${productName} ${item.size_ml}ml`;
+      return `${index + 1}. ${item.quantity}x ${productName}`;
     }) : ["Selección a coordinar por WhatsApp"]),
     "",
-    `Precio estimado pack: ${formatPrice(getPackPrice(pack))}`,
+    `Precio estimado pack ${selectedSize}ml: ${formatPrice(getPackPrice(pack, selectedSize))}`,
     "",
     "¿Me confirmas disponibilidad, forma de pago y entrega?"
   ].filter(Boolean);
@@ -49,7 +52,7 @@ function getPackWhatsappLink(pack) {
 function renderPackImages(pack) {
   const images = getPackImages(pack);
   const gallery = document.createElement("div");
-  gallery.className = "detail-gallery pack-detail-gallery";
+  gallery.className = "detail-gallery pack-detail-gallery pack-single-image-gallery";
 
   const main = document.createElement("div");
   main.className = "detail-main-image pack-main-image";
@@ -68,31 +71,12 @@ function renderPackImages(pack) {
   }
 
   gallery.appendChild(main);
-
-  if (images.length > 1) {
-    const thumbs = document.createElement("div");
-    thumbs.className = "detail-thumbs";
-    images.slice(0, 6).forEach((imageUrl, index) => {
-      const button = document.createElement("button");
-      button.type = "button";
-      button.className = index === 0 ? "active" : "";
-      button.innerHTML = `<img src="${imageUrl}" alt="${escapeHTML(pack.name)} imagen ${index + 1}">`;
-      button.addEventListener("click", () => {
-        image.src = imageUrl;
-        thumbs.querySelectorAll("button").forEach((item) => item.classList.remove("active"));
-        button.classList.add("active");
-      });
-      thumbs.appendChild(button);
-    });
-    gallery.appendChild(thumbs);
-  }
-
   return gallery;
 }
 
-
-function addPackToCart(pack) {
-  const key = `pack-${pack.id}`;
+function addPackToCart(pack, size = null) {
+  const selectedSize = String(size || currentPackSize || getDefaultPackSize(pack));
+  const key = `pack-${pack.id}-${selectedSize}`;
   const existingItem = cart.find((item) => item.key === key);
   if (existingItem) existingItem.quantity += 1;
   else cart.push({
@@ -101,8 +85,8 @@ function addPackToCart(pack) {
     type: "pack",
     name: pack.name,
     brand: pack.tag || "Pack Essential",
-    size: "pack",
-    price: getPackPrice(pack),
+    size: selectedSize,
+    price: getPackPrice(pack, selectedSize),
     quantity: 1
   });
   saveCart(cart);
@@ -166,19 +150,30 @@ cartDrawer?.addEventListener("click", (event) => { if (event.target === cartDraw
 document.querySelector("#clearCart")?.addEventListener("click", () => { cart = []; saveCart(cart); renderCart(); });
 checkoutForm?.addEventListener("input", updateWhatsappLink);
 
+function renderPackSizePicker(pack, selectedSize) {
+  const sizes = getAvailablePackSizes(pack);
+  if (!sizes.length) return "";
+  return `
+    <div class="detail-pack-size-control">
+      <span class="control-label">Formato del pack</span>
+      <div class="pack-size-picker detail-pack-size-picker" role="group" aria-label="Elegir formato del pack">
+        ${sizes.map((item) => `<button type="button" data-pack-size="${item.value}" class="${item.value === selectedSize ? "selected" : ""}">${item.label}</button>`).join("")}
+      </div>
+    </div>
+  `;
+}
+
 function renderPackDetail(pack) {
   document.title = `${pack.name} | Essential Decant`;
   const activeItems = (pack.items || []).filter((item) => !item.product || isProductActive(item.product));
+  currentPackSize = getDefaultPackSize(pack);
   const itemsHtml = activeItems.length ? activeItems.map((item) => {
     const product = item.product;
-    const image = product ? getPrimaryProductImage(product) : "";
     const productName = product ? `${escapeHTML(product.brand)} ${escapeHTML(product.name)}` : "Producto";
     const productUrl = product ? `product.html?id=${encodeURIComponent(product.id)}` : "catalogo.html";
     return `
-      <a class="pack-detail-item" href="${productUrl}">
-        <span class="pack-detail-item-img">${image ? `<img src="${image}" alt="${productName}">` : ""}</span>
+      <a class="pack-detail-item pack-detail-item-textonly" href="${productUrl}">
         <span><strong>${Number(item.quantity || 1)}x</strong> ${productName}</span>
-        <em>${Number(item.size_ml || 5)}ml</em>
       </a>
     `;
   }).join("") : `<div class="pack-detail-item empty-pack-items">Selección a coordinar por WhatsApp</div>`;
@@ -203,13 +198,14 @@ function renderPackDetail(pack) {
       <span class="control-label">Incluye</span>
       ${itemsHtml}
     </div>
+    ${renderPackSizePicker(pack, currentPackSize)}
     <div class="detail-subtotal">
       <span>Precio estimado pack</span>
-      <strong>${formatPrice(getPackPrice(pack))}</strong>
+      <strong id="packDetailPrice">${formatPrice(getPackPrice(pack, currentPackSize))}</strong>
     </div>
     <div class="detail-actions">
       <button class="btn primary" id="addPackToCart" type="button">Agregar pack al carrito</button>
-      <a class="btn whatsapp" href="${getPackWhatsappLink(pack)}" target="_blank" rel="noopener">Consultar pack por WhatsApp</a>
+      <a class="btn whatsapp" id="packWhatsappLink" href="${getPackWhatsappLink(pack, currentPackSize)}" target="_blank" rel="noopener">Consultar pack por WhatsApp</a>
       <a class="btn ghost" href="promociones.html">Ver otros packs</a>
     </div>
     <p class="detail-note">El vendedor confirma stock, forma de pago y entrega antes de cerrar el pedido.</p>
@@ -219,8 +215,20 @@ function renderPackDetail(pack) {
   packDetail.innerHTML = "";
   packDetail.appendChild(renderPackImages(pack));
   packDetail.appendChild(info);
+
+  const priceNode = packDetail.querySelector("#packDetailPrice");
+  const whatsappLink = packDetail.querySelector("#packWhatsappLink");
+  packDetail.querySelectorAll("[data-pack-size]").forEach((button) => {
+    button.addEventListener("click", () => {
+      currentPackSize = button.dataset.packSize || getDefaultPackSize(pack);
+      packDetail.querySelectorAll("[data-pack-size]").forEach((item) => item.classList.toggle("selected", item === button));
+      if (priceNode) priceNode.textContent = formatPrice(getPackPrice(pack, currentPackSize));
+      if (whatsappLink) whatsappLink.href = getPackWhatsappLink(pack, currentPackSize);
+    });
+  });
+
   packDetail.querySelector("#addPackToCart")?.addEventListener("click", () => {
-    addPackToCart(pack);
+    addPackToCart(pack, currentPackSize);
     openCart();
   });
 }

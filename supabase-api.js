@@ -61,13 +61,19 @@ function getCart() {
 function saveCart(cart) { localStorage.setItem("essentialDecantCartV51", JSON.stringify(cart)); }
 
 function getCartItemSubtitle(item) {
-  if (item?.type === "pack") return item.brand || "Pack Essential";
+  if (item?.type === "pack") {
+    const sizeLabel = item.size && item.size !== "pack" ? ` · ${item.size}ml` : "";
+    return `${item.brand || "Pack Essential"}${sizeLabel}`;
+  }
   return `${item.brand || "Essential Decant"} · ${item.size}ml`;
 }
 
 function getCartLine(item, index) {
   const total = formatPrice(Number(item.price || 0) * Number(item.quantity || 1));
-  if (item?.type === "pack") return `${index + 1}. ${item.name} - Pack x${item.quantity} = ${total}`;
+  if (item?.type === "pack") {
+    const sizeLabel = item.size && item.size !== "pack" ? ` ${item.size}ml` : "";
+    return `${index + 1}. ${item.name} - Pack${sizeLabel} x${item.quantity} = ${total}`;
+  }
   return `${index + 1}. ${item.name} - ${item.size}ml x${item.quantity} = ${total}`;
 }
 
@@ -316,8 +322,34 @@ function isPackActive(pack) {
   return pack?.is_active !== false;
 }
 
-function getPackPrice(pack) {
-  return Number(pack?.price || 0);
+function getPackBasePrice(pack, size = null) {
+  const normalizedSize = String(size || getDefaultPackSize(pack));
+  if (normalizedSize === "3") return Number(pack?.price_3ml || pack?.price || 0);
+  if (normalizedSize === "5") return Number(pack?.price_5ml || pack?.price || 0);
+  if (normalizedSize === "10") return Number(pack?.price_10ml || pack?.price || 0);
+  return Number(pack?.price || pack?.price_5ml || pack?.price_3ml || pack?.price_10ml || 0);
+}
+
+function getAvailablePackSizes(pack) {
+  const sizes = [
+    { value: "3", label: "3ml", price: Number(pack?.price_3ml || 0) },
+    { value: "5", label: "5ml", price: Number(pack?.price_5ml || 0) },
+    { value: "10", label: "10ml", price: Number(pack?.price_10ml || 0) }
+  ].filter((item) => item.price > 0);
+
+  if (sizes.length) return sizes;
+  const fallbackPrice = Number(pack?.price || 0);
+  return fallbackPrice > 0 ? [{ value: "5", label: "5ml", price: fallbackPrice }] : [];
+}
+
+function getDefaultPackSize(pack) {
+  const sizes = getAvailablePackSizes(pack);
+  if (sizes.some((item) => item.value === "5")) return "5";
+  return sizes[0]?.value || "5";
+}
+
+function getPackPrice(pack, size = null) {
+  return getPackBasePrice(pack, size);
 }
 
 function getPackItemsText(pack) {
@@ -326,7 +358,7 @@ function getPackItemsText(pack) {
   return items
     .map((item) => {
       const productName = item.product ? `${item.product.brand} ${item.product.name}` : "Producto";
-      return `${Number(item.quantity || 1)}x ${productName} ${item.size_ml}ml`;
+      return `${Number(item.quantity || 1)}x ${productName}`;
     })
     .join(" + ");
 }
@@ -337,7 +369,10 @@ async function savePack(pack) {
     name: pack.name,
     tag: pack.tag || null,
     description: pack.description || null,
-    price: Number(pack.price || 0),
+    price_3ml: Number(pack.price_3ml || 0),
+    price_5ml: Number(pack.price_5ml || 0),
+    price_10ml: Number(pack.price_10ml || 0),
+    price: Number(pack.price || pack.price_5ml || pack.price_3ml || pack.price_10ml || 0),
     is_active: pack.is_active !== false,
     featured: Boolean(pack.featured),
     image_url: pack.image_url || null,

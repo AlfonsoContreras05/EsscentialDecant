@@ -275,7 +275,7 @@
           <span class="eyebrow">Packs y promociones</span>
           <h2 id="packFormTitle">Diseñar pack</h2>
           <p>
-            Arma packs con productos existentes del catálogo. Ejemplo: 3 fragancias de 5ml + 2 de 10ml por un precio especial.
+            Arma packs con productos existentes del catálogo. Define precios por formato 3ml, 5ml y 10ml como en el catálogo principal.
           </p>
           <div class="admin-note">
             Los packs activos aparecen en la página <code>promociones.html</code>. Si apagas un pack, queda guardado pero no se muestra al cliente.
@@ -296,16 +296,25 @@
             </label>
           </div>
 
-          <div class="form-row">
+          <div class="form-row three pack-price-grid">
             <label>
-              Precio pack
-              <input required name="price" type="number" min="0" placeholder="19990" />
+              Precio pack 3ml
+              <input name="price3" type="number" min="0" placeholder="8990" />
             </label>
-            <label class="checkbox-row admin-switch-row">
-              <input name="isActive" type="checkbox" checked />
-              Pack activo / visible
+            <label>
+              Precio pack 5ml
+              <input name="price5" type="number" min="0" placeholder="19990" />
+            </label>
+            <label>
+              Precio pack 10ml
+              <input name="price10" type="number" min="0" placeholder="29990" />
             </label>
           </div>
+
+          <label class="checkbox-row admin-switch-row">
+            <input name="isActive" type="checkbox" checked />
+            Pack activo / visible
+          </label>
 
           <label>
             Descripción del pack
@@ -330,18 +339,11 @@
 
           <div class="pack-item-builder">
             <h3>Productos del pack</h3>
+            <p class="form-help">El formato lo elegirá el cliente en la vista del pack: 3ml, 5ml o 10ml según los precios que actives arriba.</p>
             <div class="pack-item-row">
               <label>
                 Producto
                 <select id="packProductSelect"></select>
-              </label>
-              <label>
-                Formato
-                <select id="packSizeSelect">
-                  <option value="3">3ml</option>
-                  <option value="5" selected>5ml</option>
-                  <option value="10">10ml</option>
-                </select>
               </label>
               <label>
                 Cantidad

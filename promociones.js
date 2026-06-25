@@ -1,6 +1,5 @@
 const packsPageGrid = document.querySelector("#packsPageGrid");
 const offersPageGrid = document.querySelector("#offersPageGrid");
-const packSizeFilters = document.querySelector("#packSizeFilters");
 const cartDrawer = document.querySelector("#cartDrawer");
 const cartItems = document.querySelector("#cartItems");
 const cartCount = document.querySelector("#cartCount");
@@ -8,8 +7,6 @@ const cartTotal = document.querySelector("#cartTotal");
 const sendWhatsapp = document.querySelector("#sendWhatsapp");
 const checkoutForm = document.querySelector("#checkoutForm");
 let cart = getCart();
-let allActivePacks = [];
-let currentPackSizeFilter = "all";
 
 function escapeHTML(value) {
   return String(value || "")
@@ -20,12 +17,21 @@ function escapeHTML(value) {
     .replace(/'/g, "&#039;");
 }
 
-
-function addPackToCart(pack) {
-  const key = `pack-${pack.id}`;
+function addPackToCart(pack, size = null) {
+  const selectedSize = String(size || getDefaultPackSize(pack));
+  const key = `pack-${pack.id}-${selectedSize}`;
   const existingItem = cart.find((item) => item.key === key);
   if (existingItem) existingItem.quantity += 1;
-  else cart.push({ key, id: pack.id, type: "pack", name: pack.name, brand: pack.tag || "Pack Essential", size: "pack", price: getPackPrice(pack), quantity: 1 });
+  else cart.push({
+    key,
+    id: pack.id,
+    type: "pack",
+    name: pack.name,
+    brand: pack.tag || "Pack Essential",
+    size: selectedSize,
+    price: getPackPrice(pack, selectedSize),
+    quantity: 1
+  });
   saveCart(cart);
   renderCart();
 }
@@ -38,6 +44,7 @@ function changeQuantity(key, amount) {
   saveCart(cart);
   renderCart();
 }
+
 function removeItem(key) { cart = cart.filter((item) => item.key !== key); saveCart(cart); renderCart(); }
 function getTotal() { return cart.reduce((total, item) => total + Number(item.price || 0) * Number(item.quantity || 1), 0); }
 
@@ -76,6 +83,7 @@ function updateWhatsappLink() {
   sendWhatsapp.href = `https://wa.me/${SELLER_PHONE}?text=${encodeURIComponent(message)}`;
   sendWhatsapp.classList.remove("disabled");
 }
+
 function openCart() { document.body.classList.add("cart-open"); cartDrawer?.setAttribute("aria-hidden", "false"); }
 function closeCart() { document.body.classList.remove("cart-open"); cartDrawer?.setAttribute("aria-hidden", "true"); }
 
@@ -85,31 +93,22 @@ cartDrawer?.addEventListener("click", (event) => { if (event.target === cartDraw
 document.querySelector("#clearCart")?.addEventListener("click", () => { cart = []; saveCart(cart); renderCart(); });
 checkoutForm?.addEventListener("input", updateWhatsappLink);
 
-function getPackWhatsappLink(pack) {
-  const lines = [
-    "Hola Essential Decant 👋",
-    `Quiero consultar por el pack: ${pack.name}`,
-    pack.tag ? `Tipo: ${pack.tag}` : "",
-    pack.description ? `Detalle: ${pack.description}` : "",
-    "",
-    "Incluye:",
-    ...(Array.isArray(pack.items) && pack.items.length ? pack.items.map((item, index) => {
-      const product = item.product;
-      const productName = product ? `${product.brand} ${product.name}` : "Producto";
-      return `${index + 1}. ${item.quantity}x ${productName} ${item.size_ml}ml`;
-    }) : ["Selección a coordinar por WhatsApp"]),
-    "",
-    `Precio estimado pack: ${formatPrice(getPackPrice(pack))}`,
-    "",
-    "¿Me confirmas disponibilidad, forma de pago y entrega?"
-  ].filter(Boolean);
-  return `https://wa.me/${SELLER_PHONE}?text=${encodeURIComponent(lines.join("\n"))}`;
+function renderPackSizePicker(pack, selectedSize) {
+  const sizes = getAvailablePackSizes(pack);
+  if (!sizes.length) return "";
+  return `
+    <div class="pack-size-picker" role="group" aria-label="Elegir formato del pack">
+      ${sizes.map((item) => `<button type="button" data-pack-size="${item.value}" class="${item.value === selectedSize ? "selected" : ""}">${item.label}</button>`).join("")}
+    </div>
+  `;
 }
 
 function renderPackCard(pack) {
   const packImage = getPrimaryPackImage(pack);
+  const selectedSize = getDefaultPackSize(pack);
   const card = document.createElement("article");
   card.className = "public-pack-card public-pack-card-clean";
+  card.dataset.selectedSize = selectedSize;
   card.innerHTML = `
     <a class="public-pack-card-link" href="pack.html?id=${encodeURIComponent(pack.id)}" aria-label="Ver detalle de ${escapeHTML(pack.name)}">
       <div class="public-pack-visual">
@@ -121,49 +120,43 @@ function renderPackCard(pack) {
         <h3>${escapeHTML(pack.name)}</h3>
       </div>
     </a>
+    <div class="public-pack-size-area">
+      ${renderPackSizePicker(pack, selectedSize)}
+    </div>
     <div class="public-pack-bottom public-pack-bottom-actions">
-      <strong>${formatPrice(getPackPrice(pack))}</strong>
+      <strong data-pack-price>${formatPrice(getPackPrice(pack, selectedSize))}</strong>
       <div>
         <a class="btn ghost" href="pack.html?id=${encodeURIComponent(pack.id)}">Ver detalle</a>
         <button class="btn primary add-pack-cart" type="button">Agregar pack</button>
       </div>
     </div>
   `;
+
+  const priceNode = card.querySelector("[data-pack-price]");
+  card.querySelectorAll("[data-pack-size]").forEach((button) => {
+    button.addEventListener("click", () => {
+      const nextSize = button.dataset.packSize || getDefaultPackSize(pack);
+      card.dataset.selectedSize = nextSize;
+      card.querySelectorAll("[data-pack-size]").forEach((item) => item.classList.toggle("selected", item === button));
+      if (priceNode) priceNode.textContent = formatPrice(getPackPrice(pack, nextSize));
+    });
+  });
+
   card.querySelector(".add-pack-cart")?.addEventListener("click", () => {
-    addPackToCart(pack);
+    addPackToCart(pack, card.dataset.selectedSize || getDefaultPackSize(pack));
     openCart();
   });
   return card;
 }
 
-
-function packMatchesSize(pack, size) {
-  if (size === "all") return true;
-  const items = Array.isArray(pack?.items) ? pack.items : [];
-  return items.some((item) => Number(item.size_ml || 0) === Number(size));
-}
-
-function renderFilteredPacks() {
+function renderPacks(packs) {
   if (!packsPageGrid) return;
-  const visiblePacks = allActivePacks.filter((pack) => packMatchesSize(pack, currentPackSizeFilter));
   packsPageGrid.innerHTML = "";
-  if (!visiblePacks.length) {
-    const label = currentPackSizeFilter === "all" ? "activos" : `con formato ${currentPackSizeFilter}ml`;
-    packsPageGrid.innerHTML = `<div class="offers-empty"><strong>No hay packs ${label}.</strong><span>Puedes crear o ajustar packs desde el admin.</span></div>`;
+  if (!packs.length) {
+    packsPageGrid.innerHTML = `<div class="offers-empty"><strong>No hay packs activos.</strong><span>Puedes crear o ajustar packs desde el admin.</span></div>`;
     return;
   }
-  visiblePacks.forEach((pack) => packsPageGrid.appendChild(renderPackCard(pack)));
-}
-
-function setupPackFilters() {
-  if (!packSizeFilters) return;
-  packSizeFilters.querySelectorAll("[data-pack-size]").forEach((button) => {
-    button.addEventListener("click", () => {
-      currentPackSizeFilter = button.dataset.packSize || "all";
-      packSizeFilters.querySelectorAll("[data-pack-size]").forEach((item) => item.classList.toggle("active", item === button));
-      renderFilteredPacks();
-    });
-  });
+  packs.forEach((pack) => packsPageGrid.appendChild(renderPackCard(pack)));
 }
 
 function renderOfferCard(product) {
@@ -195,8 +188,7 @@ async function loadPromocionesPage() {
     const activePacks = packs.filter(isPackActive).sort((a, b) => Number(b.featured) - Number(a.featured) || Number(a.order_index) - Number(b.order_index));
     const activeOffers = products.filter(isProductActive).filter(isProductOnOffer).sort((a, b) => getProductDiscountPercent(b) - getProductDiscountPercent(a) || Number(a.order_index) - Number(b.order_index));
 
-    allActivePacks = activePacks;
-    renderFilteredPacks();
+    renderPacks(activePacks);
 
     offersPageGrid.innerHTML = "";
     if (!activeOffers.length) {
@@ -212,5 +204,4 @@ async function loadPromocionesPage() {
 }
 
 renderCart();
-setupPackFilters();
 loadPromocionesPage();
