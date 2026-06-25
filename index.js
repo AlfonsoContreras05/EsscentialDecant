@@ -180,12 +180,15 @@ async function renderHomeBanner() {
     const settings = await fetchSiteSettings();
     const bannerUrl = settings?.home_banner_image_url || "";
     if (bannerUrl) {
+      const safeBannerUrl = String(bannerUrl).replace(/"/g, '\\"');
       image.src = bannerUrl;
+      slot.style.setProperty("--home-banner-bg", `url("${safeBannerUrl}")`);
       image.classList.add("visible");
       slot.classList.add("has-banner-image");
       placeholder?.classList.add("hidden");
     } else {
       image.removeAttribute("src");
+      slot.style.removeProperty("--home-banner-bg");
       image.classList.remove("visible");
       slot.classList.remove("has-banner-image");
       placeholder?.classList.remove("hidden");

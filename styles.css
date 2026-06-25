@@ -4691,3 +4691,103 @@ body.cart-open .floating-whatsapp {
     padding: 20px 20px 22px !important;
   }
 }
+
+
+/* Essential Decant V6.11 — Banner completo, proporcional y con fondo suave
+   Pensado para banners grandes tipo 6912x3456 (2:1):
+   - la imagen principal se ve completa con object-fit: contain
+   - el cuadro sigue viéndose como banner gracias al fondo difuminado
+   - no se recorta ni se sale del marco
+*/
+.home-banner-slot,
+.home-banner-slot.has-banner-image {
+  width: min(1500px, calc(100% - 24px)) !important;
+  min-height: clamp(320px, 28vw, 580px) !important;
+  max-height: 620px !important;
+  margin-top: clamp(42px, 6vw, 74px) !important;
+  margin-bottom: clamp(28px, 4vw, 52px) !important;
+  border-radius: clamp(28px, 3.4vw, 46px) !important;
+  overflow: hidden !important;
+  position: relative !important;
+  display: grid !important;
+  place-items: center !important;
+  background:
+    radial-gradient(circle at 15% 20%, rgba(86,200,255,.13), transparent 26rem),
+    radial-gradient(circle at 85% 34%, rgba(232,194,111,.16), transparent 28rem),
+    rgba(255,255,255,.045) !important;
+}
+
+.home-banner-slot.has-banner-image::before {
+  content: "" !important;
+  position: absolute !important;
+  inset: -24px !important;
+  background-image:
+    linear-gradient(90deg, rgba(7,10,15,.48), rgba(7,10,15,.10), rgba(7,10,15,.48)),
+    var(--home-banner-bg, none) !important;
+  background-size: cover !important;
+  background-position: center center !important;
+  background-repeat: no-repeat !important;
+  filter: blur(18px) saturate(1.05) contrast(1.04) !important;
+  transform: scale(1.08) !important;
+  opacity: .62 !important;
+  z-index: 0 !important;
+}
+
+.home-banner-slot.has-banner-image::after {
+  content: "" !important;
+  position: absolute !important;
+  inset: 0 !important;
+  background:
+    linear-gradient(90deg, rgba(7,10,15,.28), rgba(7,10,15,.04) 30%, rgba(7,10,15,.04) 70%, rgba(7,10,15,.28)),
+    linear-gradient(180deg, rgba(0,0,0,.10), rgba(0,0,0,.22)) !important;
+  pointer-events: none !important;
+  z-index: 1 !important;
+}
+
+.home-banner-image,
+.home-banner-image.visible {
+  position: relative !important;
+  inset: auto !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  display: block !important;
+  z-index: 2 !important;
+}
+
+.home-banner-slot.has-banner-image .home-banner-inner {
+  display: none !important;
+}
+
+#bannerImagePreview.visible {
+  display: block !important;
+  width: 100% !important;
+  max-height: 420px !important;
+  object-fit: contain !important;
+  object-position: center center !important;
+  border: 1px solid var(--line) !important;
+  border-radius: 18px !important;
+  background:
+    radial-gradient(circle at 50% 50%, rgba(232,194,111,.10), transparent 18rem),
+    rgba(255,255,255,.06) !important;
+  padding: 8px !important;
+}
+
+@media (max-width: 900px) {
+  .home-banner-slot,
+  .home-banner-slot.has-banner-image {
+    min-height: clamp(260px, 58vw, 520px) !important;
+  }
+}
+
+@media (max-width: 580px) {
+  .home-banner-slot,
+  .home-banner-slot.has-banner-image {
+    width: min(100%, calc(100% - 18px)) !important;
+    min-height: 260px !important;
+    max-height: 420px !important;
+  }
+}
