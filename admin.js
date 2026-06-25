@@ -261,9 +261,9 @@ function renderBannerSettings() {
 bannerImageInput?.addEventListener("change", async (event) => {
   const file = event.target.files[0];
   if (!file) return;
-  if (file.size > 6 * 1024 * 1024) { alert("La imagen pesa mucho. Intenta usar una menor a 6MB."); bannerImageInput.value = ""; return; }
+  if (file.size > 30 * 1024 * 1024) { alert("La imagen pesa mucho. Intenta usar una menor a 30MB."); bannerImageInput.value = ""; return; }
   try {
-    const { blob, preview } = await compressImage(file, 1800, 0.86);
+    const { blob, preview } = await compressImage(file, 2400, 0.88);
     selectedBannerBlob = blob;
     bannerImagePreview.src = preview;
     bannerImagePreview.classList.add("visible");

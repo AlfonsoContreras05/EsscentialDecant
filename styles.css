@@ -4536,3 +4536,93 @@ body.cart-open .floating-whatsapp {
     padding-right: 18px;
   }
 }
+
+/* Essential Decant V6.8 — tarjetas de packs más alargadas + banner grande */
+/* Packs de portada: cards más panorámicas para que la imagen respire mejor. */
+.home-pack-grid {
+  gap: clamp(18px, 2vw, 28px) !important;
+}
+
+.home-pack-card.home-pack-card-image {
+  min-height: clamp(280px, 23vw, 350px) !important;
+  border-radius: 30px !important;
+}
+
+.home-pack-card.home-pack-card-image a {
+  grid-template-rows: clamp(185px, 15vw, 230px) 1fr !important;
+}
+
+.home-pack-visual img {
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+
+.home-pack-content {
+  min-height: 118px !important;
+  padding: 20px 24px 22px !important;
+  gap: 10px !important;
+}
+
+.home-pack-content strong {
+  font-size: clamp(18px, 1.35vw, 24px) !important;
+  line-height: 1.08 !important;
+}
+
+.home-pack-content small {
+  font-size: 14px !important;
+}
+
+/* Banner promocional: espacio más largo/alto para campañas del cliente. */
+.home-banner-slot,
+.home-banner-slot.has-banner-image {
+  width: min(1500px, calc(100% - 24px)) !important;
+  min-height: clamp(250px, 32vw, 520px) !important;
+  margin-top: clamp(42px, 6vw, 74px) !important;
+  margin-bottom: clamp(24px, 4vw, 46px) !important;
+  border-radius: clamp(28px, 3.4vw, 46px) !important;
+}
+
+.home-banner-image {
+  object-fit: cover !important;
+  object-position: center center !important;
+}
+
+.home-banner-inner {
+  max-width: 1100px !important;
+  padding: clamp(28px, 6vw, 70px) !important;
+}
+
+.home-banner-inner strong {
+  font-size: clamp(34px, 5.6vw, 78px) !important;
+}
+
+.home-banner-inner small {
+  font-size: clamp(14px, 1.25vw, 18px) !important;
+}
+
+@media (max-width: 1100px) {
+  .home-pack-card.home-pack-card-image a {
+    grid-template-rows: clamp(200px, 28vw, 270px) 1fr !important;
+  }
+
+  .home-banner-slot,
+  .home-banner-slot.has-banner-image {
+    min-height: clamp(230px, 42vw, 430px) !important;
+  }
+}
+
+@media (max-width: 680px) {
+  .home-pack-card.home-pack-card-image {
+    min-height: 300px !important;
+  }
+
+  .home-pack-card.home-pack-card-image a {
+    grid-template-rows: 190px 1fr !important;
+  }
+
+  .home-banner-slot,
+  .home-banner-slot.has-banner-image {
+    min-height: 240px !important;
+    width: min(100%, calc(100% - 18px)) !important;
+  }
+}
